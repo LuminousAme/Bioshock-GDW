@@ -59,7 +59,7 @@ void RenderingSystem::Update(entt::registry* reg)
 		auto& scroll = view2_1.get(entity); 
 
 		//updates the scroll
-		scroll.Update(); 
+		scroll.Update(BackEnd::GetAspectRatio());
 	}
 
 	//Creates a view of all entities with a vertical scroll
@@ -71,7 +71,7 @@ void RenderingSystem::Update(entt::registry* reg)
 		auto& scroll = view2_2.get(entity);
 
 		//updates the scroll
-		scroll.Update();
+		scroll.Update(BackEnd::GetAspectRatio());
 	}
 }
 

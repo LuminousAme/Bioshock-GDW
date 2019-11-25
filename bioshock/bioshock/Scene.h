@@ -3,6 +3,8 @@
 
 #include "JSON.h"
 #include "ECS.h"
+#include "Xinput.h"
+#include <SDL2/SDL.h>
 
 
 class Scene
@@ -13,13 +15,31 @@ public:
 	~Scene() { }
 
 	void Unload();
+	//Saves the scene
+	void SaveScene();
 
 	//Each scene will need to have a different
 	//init, as each scene's contents will be different
-	virtual void InitScene(float windowWidth, float windowHeight) { printf("windowwidth: %f, windowHeight: %f", windowWidth, windowHeight); };
+	virtual void InitScene(float windowWidth, float windowHeight) { printf("windowWidth: %f, windowHeight: %f", windowWidth, windowHeight); }
 
-	//Saves the scene
-	void SaveScene();
+	virtual void Update() {}
+
+	virtual void AcceptInput() {}; 
+	virtual void GamepadInput(XInputController* con) {};
+
+	virtual void GamepadStroke(XInputController* con) { };
+	virtual void GamepadUp(XInputController* con) { };
+	virtual void GamepadDown(XInputController* con) { };
+	virtual void GamepadStick(XInputController* con) { };
+	virtual void GamepadTrigger(XInputController* con) { };
+	virtual void KeyboardHold() { };
+	virtual void KeyboardDown() { };
+	virtual void KeyboardUp() { };
+
+	//Mouse input
+	virtual void MouseMotion(SDL_MouseMotionEvent evnt) { };
+	virtual void MouseClick(SDL_MouseButtonEvent evnt) { };
+	virtual void MouseWheel(SDL_MouseWheelEvent evnt) { };
 
 	//Get the scene registry
 	entt::registry* GetScene() const;
@@ -27,11 +47,11 @@ public:
 	void SetScene(entt::registry& scene);
 	std::string GetName() const;
 	void SetName(std::string name);
-	
+
 	//Set window size (makes sure the camera aspect is proper)
 	void SetWindowSize(float windowWidth, float windowHeight);
 protected:
-	entt::registry* m_sceneReg = nullptr;	
+	entt::registry* m_sceneReg = nullptr;
 	std::string m_name = "Default Name";
 };
 
@@ -44,7 +64,7 @@ inline void to_json(nlohmann::json& j, const Scene& scene)
 	j["SceneName"] = scene.GetName();
 
 	auto view = scene.GetScene()->view<EntityIdentifier>();
-	
+
 	//keeps count of how many entities were stored
 	unsigned int counter = 0;
 
@@ -55,7 +75,7 @@ inline void to_json(nlohmann::json& j, const Scene& scene)
 
 		//Identifier used to check what components are within this entity
 		unsigned int identity = view.get(entity).GetIdentifier();
-		
+
 		//If Identity includes the Camera bit
 			//This means the entity contains a camera
 		if (identity & EntityIdentifier::CameraBit())
@@ -92,20 +112,6 @@ inline void to_json(nlohmann::json& j, const Scene& scene)
 		//you need to #1 add a static (unique) bit for that class
 		//And then add more if statements after this point
 
-		//If identity includes the horizontal scrolling bit, then it is a horizontal scrolling camera
-		if (identity & EntityIdentifier::HoriScrollCameraBit())
-		{
-			//stores the horizontal scrolling camera 
-			j[std::to_string(counter)]["HoriScrollCam"] = scene.GetScene()->get<HorizontalScroll>(entity);
-		}
-
-
-		//If identity includes the vertical scrolling bit, then it is a horizontal scrolling camera
-		if (identity & EntityIdentifier::VertScrollCameraBit())
-		{
-			//stores the horizontal scrolling camera 
-			j[std::to_string(counter)]["VertScrollCam"] = scene.GetScene()->get<VerticalScroll>(entity);
-		}
 
 		//For each loop increase the counter
 		counter++;
@@ -127,12 +133,6 @@ inline void from_json(const nlohmann::json& j, Scene& scene)
 	//Reference to the registry
 	auto &reg = *scene.GetScene();
 
-	//Is there a horizontal scroll? 
-	bool scrollHori = false;
-
-	//Is there a vertical scroll? 
-	bool scrollVert = false;
-	
 	//Allows you to create each entity
 	for (unsigned i = 0; i < numEntities; i++)
 	{
@@ -145,7 +145,7 @@ inline void from_json(const nlohmann::json& j, Scene& scene)
 		//Sets the entity identifier correctly
 		reg.get<EntityIdentifier>(entity) = j["Scene"][std::to_string(i)]["Identifier"];
 		reg.get<EntityIdentifier>(entity).SetEntity(entity);
-		
+
 		//Just check if this entity is the main camera
 		if (reg.get<EntityIdentifier>(entity).GetIsMainCamera())
 		{
@@ -192,7 +192,7 @@ inline void from_json(const nlohmann::json& j, Scene& scene)
 			AnimationController* anim = nullptr;
 			if (hasAnim)
 				anim = &reg.get<AnimationController>(entity);
-			
+
 			//Adds sprite to the entity
 			reg.assign<Sprite>(entity);
 			//Sets the sprite to the saved version
@@ -218,42 +218,6 @@ inline void from_json(const nlohmann::json& j, Scene& scene)
 
 			//Transforms require no further initialization
 		}
-
-		//If identity includes the horiztonal scrolling bit than it is a camera with horizontal scrolling
-		if (identity & EntityIdentifier::HoriScrollCameraBit()) {
-			//Adds the horizontal scrolling camera to the entity
-			reg.assign<HorizontalScroll>(entity);
-			//Sets the horizontal scrolling camera to our saved verison 
-			reg.get<HorizontalScroll>(entity) = j["Scene"][std::to_string(i)]["HoriScrollCam"];
-
-			scrollHori = true;
-		}
-
-		//If identity includes the vertical scrolling bit than it is a camera with vertical scrolling
-		if (identity & EntityIdentifier::VertScrollCameraBit()) {
-			//Adds the vertical scrolling camera to the entity
-			reg.assign<VerticalScroll>(entity);
-			//Sets the vertical scrolling camera to our saved verison 
-			reg.get<VerticalScroll>(entity) = j["Scene"][std::to_string(i)]["VertScrollCam"];
-
-			scrollVert = true;
-		}
-	}
-
-	if (scrollHori)
-	{
-		//attaches the horizontal scroll to the camera within the entity it's attached to 
-		reg.get<HorizontalScroll>(EntityIdentifier::MainCamera()).SetCam(&reg.get<Camera>(EntityIdentifier::MainCamera()));
-		//Makes the camera focus on the mainplayer 
-		reg.get<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&reg.get<Transform>(EntityIdentifier::MainPlayer()));
-	}
-
-	if (scrollVert)
-	{
-		//attaches the horizontal scroll to the camera within the entity it's attached to 
-		reg.get<VerticalScroll>(EntityIdentifier::MainCamera()).SetCam(&reg.get<Camera>(EntityIdentifier::MainCamera()));
-		//Makes the camera focus on the mainplayer 
-		reg.get<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&reg.get<Transform>(EntityIdentifier::MainPlayer()));
 	}
 }
 

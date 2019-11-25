@@ -16,8 +16,8 @@ void BackEnd::InitBackEnd(std::string name)
 	InitSDL();
 
 	//Sets the backend window width, height, and aspect ratio
-	m_windowWidth = 700;
-	m_windowHeight = 700;
+	m_windowWidth = 1920;
+	m_windowHeight = 1080;
 	m_aspectRatio = float(m_windowWidth) / float(m_windowHeight);
 	//Creates new window with name of the scene as a caption
 	m_window = new Window(name, BackEnd::GetWindowWidth(), BackEnd::GetWindowHeight());
@@ -90,8 +90,8 @@ void BackEnd::InitSDL()
 }
 
 void BackEnd::PollEvents(entt::registry* mainReg, bool * closeWindow,
-							bool * mouseMotion, bool * mouseClick,
-								bool * mouseWheel)
+	bool * mouseMotion, bool * mouseClick,
+	bool * mouseWheel)
 {
 	//Polls events
 	SDL_Event event;
@@ -176,12 +176,13 @@ void BackEnd::ReshapeWindow(int w, int h, entt::registry * mainReg)
 
 	//Adjusts for aspect ratio
 	vec4 temp = mainReg->get<Camera>(EntityIdentifier::MainCamera()).GetOrthoSize();
-	Camera tempCam = mainReg->get<Camera>(EntityIdentifier::MainCamera());
+	auto& tempCam = mainReg->get<Camera>(EntityIdentifier::MainCamera());
 
 	//Set values
 	mainReg->get<Camera>(EntityIdentifier::MainCamera()).SetWindowSize(vec2(float(m_windowWidth), float(m_windowHeight)));
 	mainReg->get<Camera>(EntityIdentifier::MainCamera()).Orthographic(m_aspectRatio, temp.x, temp.y, temp.z, temp.w, tempCam.GetNear(), tempCam.GetFar());
 
+	tempCam.SetPosition(tempCam.GetPosition());
 }
 
 Window * BackEnd::GetWindow()

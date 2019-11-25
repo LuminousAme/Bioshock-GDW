@@ -8,7 +8,7 @@ public:
 	HorizontalScroll(); 
 
 	//Make sure the camera is following the focus 
-	void Update(); 
+	void Update(float aspectRatio); 
 
 	//Getters 
 	Camera* GetCam() const; 

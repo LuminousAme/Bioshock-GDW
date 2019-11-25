@@ -4,19 +4,19 @@
 #include <entt/entity/registry.hpp>
 
 #include "Camera.h"
-#include "HoriztontalScroll.h"
-#include "VerticalScroll.h"
 #include "Sprite.h"
 #include "AnimationController.h"
 #include "Transform.h"
 #include "EntityIdentifier.h"
+#include "HoriztontalScroll.h"
+#include "VerticalScroll.h"
 
 class ECS abstract
 {
 public:
 	//Attach the register to the ECS
 	//*Please don't forget to do this before creating new entities
-	static void AttachRegister(entt::registry* reg);	
+	static void AttachRegister(entt::registry* reg);
 	//Unattach the register to the ECS
 	//*Please don't forget to do this when you're done creating entities
 	static void UnattachRegister();

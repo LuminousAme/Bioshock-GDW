@@ -4,7 +4,7 @@ VerticalScroll::VerticalScroll()
 {
 }
 
-void VerticalScroll::Update()
+void VerticalScroll::Update(float aspectRatio)
 {
 	//above focus 
 	if (m_focus->GetPosition().y > m_cam->m_localPosition.y + m_offset) {
@@ -12,7 +12,7 @@ void VerticalScroll::Update()
 		float difference = m_focus->GetPosition().y - (m_cam->m_localPosition.y + m_offset);
 
 		//adjust the camera
-		m_cam->SetPosition(vec3(m_cam->GetPosition().x, m_cam->GetPosition().y + difference, m_cam->GetPosition().z));
+		m_cam->SetPosition(vec3(m_cam->GetPosition().x, m_cam->GetPosition().y + difference * aspectRatio, m_cam->GetPosition().z));
 	}
 	//below focus 
 	if (m_focus->GetPosition().y < m_cam->m_localPosition.y - m_offset) {
@@ -20,7 +20,7 @@ void VerticalScroll::Update()
 		float difference = m_focus->GetPosition().y - (m_cam->m_localPosition.y - m_offset);
 
 		//adjust the camera
-		m_cam->SetPosition(vec3(m_cam->GetPosition().x, m_cam->GetPosition().y + difference, m_cam->GetPosition().z));
+		m_cam->SetPosition(vec3(m_cam->GetPosition().x, m_cam->GetPosition().y + difference * aspectRatio, m_cam->GetPosition().z));
 	}
 }
 

@@ -205,6 +205,7 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="JSON.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Maxtrix.cpp" />
     <ClCompile Include="PixelateEffect.cpp" />
     <ClCompile Include="PostEffect.cpp" />
     <ClCompile Include="RenderingSystem.cpp" />

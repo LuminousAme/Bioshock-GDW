@@ -4,7 +4,7 @@ HorizontalScroll::HorizontalScroll()
 {
 }
 
-void HorizontalScroll::Update()
+void HorizontalScroll::Update(float aspectRatio)
 {
 	//above focus (to the right) 
 	if (m_focus->GetPosition().x > m_cam->m_localPosition.x + m_offset) {
@@ -12,7 +12,7 @@ void HorizontalScroll::Update()
 		float difference = (m_focus->GetPosition().x - (m_cam->m_localPosition.x + m_offset)); 
 
 		//adjust the camera
-		m_cam->SetPosition(vec3(m_cam->GetPosition().x + difference, m_cam->GetPosition().y, m_cam->GetPosition().z)); 
+		m_cam->SetPosition(vec3(m_cam->GetPosition().x + difference * aspectRatio, m_cam->GetPosition().y, m_cam->GetPosition().z));
 	}
 	//below focus (to the left) 
 	if (m_focus->GetPosition().x < m_cam->m_localPosition.x - m_offset) {
@@ -20,7 +20,7 @@ void HorizontalScroll::Update()
 		float difference = (m_focus->GetPosition().x - (m_cam->m_localPosition.x - m_offset));
 
 		//adjust the camera
-		m_cam->SetPosition(vec3(m_cam->GetPosition().x + difference, m_cam->GetPosition().y, m_cam->GetPosition().z));
+		m_cam->SetPosition(vec3(m_cam->GetPosition().x + difference * aspectRatio, m_cam->GetPosition().y, m_cam->GetPosition().z));
 	}
 }
 
