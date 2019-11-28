@@ -45,6 +45,44 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		ECS::SetIsMainCamera(entity, true); 
 	}
 
+	//setup new entity, Splicer Female
+	{
+		//Our animation file 
+		auto animation = File::LoadJSON("LittleSister.json");
+
+		//create new entity 
+		auto entity = ECS::CreateEntity();
+
+		//Add components
+		ECS::AttachComponent<Sprite>(entity);
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<AnimationController>(entity);
+
+		//Sets up components
+		std::string fileName = "LittleSisterSpritesheet.png";
+		auto& animController = ECS::GetComponent<AnimationController>(entity);
+
+		animController.InitUVs(fileName);
+
+		//Adds walking animation
+		animController.AddAnimation(animation["Walk(woNeedle)"]); //index 0
+		//Adds attacking animation
+		animController.AddAnimation(animation["Walk"]); //index 1
+		//Adds death animation
+		animController.AddAnimation(animation["Base"]); //index 2 
+		//Adds shock animation
+		animController.AddAnimation(animation["Base(woNeedle)"]); //index 3
+
+		animController.SetActiveAnim(0);
+
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 15, 15, true, &animController);
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-50.f, 24.f, 99.f));
+
+		//Sets up identifier 
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "Little Sister");
+	}
+	//Set up the main player
 	{
 		//Our animation file 
 		auto animations = File::LoadJSON("JackAnimations.json");
@@ -86,10 +124,10 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		ECS::SetIsMainPlayer(entity, true);
 	}
 
-	//setup new entity, Splicer Male
+	//setup new entity, Splicer	Male
 	{
 		//Our animation file 
-		auto animation = File::LoadJSON("BigDaddy.json");
+		auto animation = File::LoadJSON("MaleSplicer.json");
 
 		//create new entity 
 		auto entity = ECS::CreateEntity();
@@ -100,7 +138,7 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		ECS::AttachComponent<AnimationController>(entity);
 
 		//Sets up components
-		std::string fileName = "BigDaddySpritesheet.png";
+		std::string fileName = "SplicerSpritesheet.png";
 		auto& animController = ECS::GetComponent<AnimationController>(entity);
 
 		animController.InitUVs(fileName);
@@ -116,12 +154,50 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 
 		animController.SetActiveAnim(0);
 
-		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 30, 30, true, &animController);
-		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-10.f, 50.f, 99.f));
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 25, 15, true, &animController);
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(33.f, 44.f, 99.f));
 
 		//Sets up identifier 
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
-		ECS::SetUpIdentifier(entity, bitHolder, "Big Daddy");
+		ECS::SetUpIdentifier(entity, bitHolder, "Male Splicer");
+	}
+
+	//setup new entity, Splicer Female
+	{
+		//Our animation file 
+		auto animation = File::LoadJSON("FemaleSplicer.json");
+
+		//create new entity 
+		auto entity = ECS::CreateEntity();
+
+		//Add components
+		ECS::AttachComponent<Sprite>(entity);
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<AnimationController>(entity);
+
+		//Sets up components
+		std::string fileName = "FemaleSplicerSpritesheet.png";
+		auto& animController = ECS::GetComponent<AnimationController>(entity);
+
+		animController.InitUVs(fileName);
+
+		//Adds walking animation
+		animController.AddAnimation(animation["Attack"]); //index 0
+		//Adds attacking animation
+		animController.AddAnimation(animation["Base"]); //index 1
+		//Adds death animation
+		animController.AddAnimation(animation["Death"]); //index 2 
+		//Adds shock animation
+		animController.AddAnimation(animation["Electric"]); //index 3
+
+		animController.SetActiveAnim(0);
+
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 21, 21, true, &animController);
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-50.f, 50.f, 99.f));
+
+		//Sets up identifier 
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "Female Splicer");
 	}
 
 	//setup new entity, Big Daddy
