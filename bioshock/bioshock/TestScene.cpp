@@ -45,23 +45,22 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		ECS::SetIsMainCamera(entity, true); 
 	}
 
-	//steup new entity, mainplayer
 	{
 		//Our animation file 
-		auto animations = File::LoadJSON("JackAnimations.json"); 
+		auto animations = File::LoadJSON("JackAnimations.json");
 
 		//create new entity 
-		auto entity = ECS::CreateEntity(); 
-		EntityIdentifier::MainPlayer(entity); 
-		
+		auto entity = ECS::CreateEntity();
+		EntityIdentifier::MainPlayer(entity);
+
 		//Add components
-		ECS::AttachComponent<Sprite>(entity); 
-		ECS::AttachComponent<Transform>(entity); 
-		ECS::AttachComponent<AnimationController>(entity); 
+		ECS::AttachComponent<Sprite>(entity);
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<AnimationController>(entity);
 
 		//Sets up components
-		std::string fileName = "jack spritesheet.png"; 
-		auto &animController = ECS::GetComponent<AnimationController>(entity); 
+		std::string fileName = "jack spritesheet.png";
+		auto& animController = ECS::GetComponent<AnimationController>(entity);
 		animController.InitUVs(fileName);
 		//Adds walking with wrench animation
 		animController.AddAnimation(animations["WrenchBase"]); //index 0
@@ -76,15 +75,91 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		//Adds firing the gun 
 		animController.AddAnimation(animations["GunFire"]); //index 5
 
-		animController.SetActiveAnim(0); 
+		animController.SetActiveAnim(0);
 
-		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 48, 48, true, &animController); 
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 24, 24, true, &animController);
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, 99.f));
 
 		//Sets up identifier 
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
-		ECS::SetUpIdentifier(entity, bitHolder, "Jack"); 
-		ECS::SetIsMainPlayer(entity, true); 
+		ECS::SetUpIdentifier(entity, bitHolder, "Jack");
+		ECS::SetIsMainPlayer(entity, true);
+	}
+
+	//setup new entity, Splicer Male
+	{
+		//Our animation file 
+		auto animation = File::LoadJSON("BigDaddy.json");
+
+		//create new entity 
+		auto entity = ECS::CreateEntity();
+
+		//Add components
+		ECS::AttachComponent<Sprite>(entity);
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<AnimationController>(entity);
+
+		//Sets up components
+		std::string fileName = "BigDaddySpritesheet.png";
+		auto& animController = ECS::GetComponent<AnimationController>(entity);
+
+		animController.InitUVs(fileName);
+
+		//Adds walking animation
+		animController.AddAnimation(animation["Attack"]); //index 0
+		//Adds attacking animation
+		animController.AddAnimation(animation["Base"]); //index 1
+		//Adds death animation
+		animController.AddAnimation(animation["Death"]); //index 2 
+		//Adds shock animation
+		animController.AddAnimation(animation["Electric"]); //index 3
+
+		animController.SetActiveAnim(0);
+
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 30, 30, true, &animController);
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-10.f, 50.f, 99.f));
+
+		//Sets up identifier 
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "Big Daddy");
+	}
+
+	//setup new entity, Big Daddy
+	{
+		//Our animation file 
+		auto animation = File::LoadJSON("BigDaddy.json"); 
+
+		//create new entity 
+		auto entity = ECS::CreateEntity(); 
+		
+		//Add components
+		ECS::AttachComponent<Sprite>(entity); 
+		ECS::AttachComponent<Transform>(entity); 
+		ECS::AttachComponent<AnimationController>(entity); 
+
+		//Sets up components
+		std::string fileName = "BigDaddySpritesheet.png"; 
+		auto &animController = ECS::GetComponent<AnimationController>(entity); 
+		
+		animController.InitUVs(fileName);
+
+		//Adds walking animation
+		animController.AddAnimation(animation["Attack"]); //index 0
+		//Adds attacking animation
+		animController.AddAnimation(animation["Base"]); //index 1
+		//Adds death animation
+		animController.AddAnimation(animation["Death"]); //index 2 
+		//Adds shock animation
+		animController.AddAnimation(animation["Electric"]); //index 3
+
+		animController.SetActiveAnim(0);
+
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 30, 30, true, &animController); 
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-10.f, 50.f, 99.f));
+
+		//Sets up identifier 
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "Big Daddy"); 
 	}
 
 	//setup a background image entity, just to test movement 
