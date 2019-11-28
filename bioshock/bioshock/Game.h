@@ -59,6 +59,7 @@ public:
 	void MouseMotion(SDL_MouseMotionEvent evnt);
 	void MouseClick(SDL_MouseButtonEvent evnt);
 	void MouseWheel(SDL_MouseWheelEvent evnt);
+
 private:
 	//The window
 	Window *m_window = nullptr;
@@ -83,6 +84,10 @@ private:
 	bool m_motion = false;
 	bool m_click = false;
 	bool m_wheel = false;
+
+	//track switching between scenes
+	int m_currentScene = 0; 
+	int m_sceneRunning = 0;
 };
 
 

@@ -444,14 +444,6 @@ void TestScene::KeyboardHold() {
 }
 
 void TestScene::KeyboardDown() {
-	//Keyboard button down
-	if (Input::GetKeyDown(Key::One))
-	{
-		//make the active special lightning 
-	}
-	if (Input::GetKeyDown(Key::Two)) {
-		//make the active special fire
-	}
 }
 
 void TestScene::MouseMotion(SDL_MouseMotionEvent evnt) {

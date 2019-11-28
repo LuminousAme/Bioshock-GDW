@@ -42,7 +42,7 @@ void Game::InitGame()
 	m_scenes.push_back(new TestScene("Test Scene")); 
 
 	//sets active scene reference to the the test scene 
-	m_activeScene = m_scenes[0]; 
+	m_activeScene = m_scenes[m_currentScene];
 
 	//initiliazes the scene 
 	m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight())); 
@@ -82,6 +82,12 @@ bool Game::Run()
 		{
 			//Accept all input
 			AcceptInput();
+		}
+		//swaps to the approriate scene, might need to change later
+		if (m_currentScene != m_sceneRunning) {
+			m_sceneRunning = m_currentScene; 
+			m_activeScene = m_scenes[m_currentScene]; 
+			m_register = m_activeScene->GetScene();
 		}
 	}
 
@@ -178,6 +184,16 @@ void Game::KeyboardHold()
 
 void Game::KeyboardDown()
 {
+	//Keyboard button down
+
+	//for main game only
+	if (m_currentScene == 0) {		
+		//esc, currently exits game, will open pause menu later 
+		if (Input::GetKeyDown(Key::Escape))
+		{
+			m_window->Close(); 
+		}
+	}
 }
 
 void Game::KeyboardUp()
