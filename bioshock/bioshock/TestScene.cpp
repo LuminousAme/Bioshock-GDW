@@ -121,7 +121,6 @@ void TestScene::Update() {
 	//moves the player
 	mainPlayerMove();
 
-
 	//grab a reference to the main player's animations
 	auto &animController = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
 	//WEAPON SWITCHING 
