@@ -2,8 +2,6 @@
 
 #include <random>
 
-
-
 Game::~Game()
 {
 	//If window isn't equal to nullptr

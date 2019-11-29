@@ -447,7 +447,18 @@ void TestScene::KeyboardDown() {
 }
 
 void TestScene::MouseMotion(SDL_MouseMotionEvent evnt) {
+	vec3 playerPos = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()).GetPosition(); 
 
+	vec2 convertedMouse = vec2(evnt.x, evnt.y); //not yet converted 
+	mouseUtils::convertToGL(BackEnd::GetWindowWidth(), BackEnd::GetWindowHeight(), 178, 100, convertedMouse.x, convertedMouse.y); //now converted
+
+	convertedMouse = convertedMouse + vec2(playerPos.x, playerPos.y); //adjust it by the distance the player is from the origin 
+
+	float dx = playerPos.x - convertedMouse.x; 
+	float dy = playerPos.y - convertedMouse.y; 
+
+	float playerFaceAng = (atan2(dy, dx)) * 180.f / PI; 
+	ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()).SetRotationAngleZ(-1.f * Transform::ToRadians(playerFaceAng) - Transform::ToRadians(180.f));
 }
 
 void TestScene::MouseClick(SDL_MouseButtonEvent evnt) {
@@ -461,7 +472,6 @@ void TestScene::MouseClick(SDL_MouseButtonEvent evnt) {
 		//fire off special ability 
 		lightning = true;
 	}
-
 }
 
 void TestScene::MouseWheel(SDL_MouseWheelEvent evnt) {

@@ -3,6 +3,7 @@
 #include "Scene.h"
 #include "Xinput.h"
 #include "EffectManager.h"
+#include "mouseUtils.h"
 
 class TestScene : public Scene
 {
