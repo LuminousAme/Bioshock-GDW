@@ -450,7 +450,7 @@ void TestScene::MouseMotion(SDL_MouseMotionEvent evnt) {
 	vec3 playerPos = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()).GetPosition(); 
 
 	vec2 convertedMouse = vec2(evnt.x, evnt.y); //not yet converted 
-	mouseUtils::convertToGL(BackEnd::GetWindowWidth(), BackEnd::GetWindowHeight(), 178, 100, convertedMouse.x, convertedMouse.y); //now converted
+	mouseUtils::convertToGL(BackEnd::GetWindowWidth(), BackEnd::GetWindowHeight(), 356, 200, convertedMouse.x, convertedMouse.y); //now converted
 
 	convertedMouse = convertedMouse + vec2(playerPos.x, playerPos.y); //adjust it by the distance the player is from the origin 
 
