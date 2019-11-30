@@ -238,22 +238,39 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		ECS::SetUpIdentifier(entity, bitHolder, "Big Daddy"); 
 	}
 
-	//setup a background image entity, just to test movement 
+	//setup a background image entity
 	{
-		//creates entity
-		auto entity = ECS::CreateEntity(); 
+		auto animation = File::LoadJSON("Map.json");
 
-		//Adds components
-		ECS::AttachComponent<Sprite>(entity); 
+		//create new entity 
+		auto entity = ECS::CreateEntity();
+
+		//Add components
+		ECS::AttachComponent<Sprite>(entity);
 		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<AnimationController>(entity);
 
-		//Sets up components 
-		std::string fileName = "HelloWorld.png"; 
-		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 100, 50); 
+		//Sets up components
+		std::string fileName = "map design.png";
+		auto& animController = ECS::GetComponent<AnimationController>(entity);
 
-		//Sets up identitifer
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
-		ECS::SetUpIdentifier(entity, bitHolder, "Hello World Sign"); 
+		animController.InitUVs(fileName);
+
+		//Adds Level One animation
+		animController.AddAnimation(animation["LevelOne"]); //index 0
+		//Adds Level Two animation
+		animController.AddAnimation(animation["LevelTwo"]); //index 1
+		//Adds Level Three animation
+		animController.AddAnimation(animation["LevelThree"]); //index 2 
+
+		animController.SetActiveAnim(0);
+
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 600, 525, true, &animController);
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, 98.f));
+
+		//Sets up identifier 
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "Big Daddy");
 	}
 
 	//Makes the camera focus on the main player
