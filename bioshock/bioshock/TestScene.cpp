@@ -115,7 +115,7 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 
 		animController.SetActiveAnim(0);
 
-		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 24, 24, true, &animController);
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 35, 35, true, &animController);
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, 99.f));
 
 		//Sets up identifier 
@@ -154,7 +154,7 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 
 		animController.SetActiveAnim(0);
 
-		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 25, 15, true, &animController);
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 30, 18, true, &animController);
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(33.f, 44.f, 99.f));
 
 		//Sets up identifier 
@@ -192,7 +192,7 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 
 		animController.SetActiveAnim(0);
 
-		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 21, 21, true, &animController);
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 30, 25, true, &animController);
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-50.f, 50.f, 99.f));
 
 		//Sets up identifier 
@@ -230,7 +230,7 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 
 		animController.SetActiveAnim(0);
 
-		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 30, 30, true, &animController); 
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 39, 33, true, &animController); 
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-10.f, 50.f, 99.f));
 
 		//Sets up identifier 
@@ -270,7 +270,7 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 
 		//Sets up identifier 
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
-		ECS::SetUpIdentifier(entity, bitHolder, "Big Daddy");
+		ECS::SetUpIdentifier(entity, bitHolder, "Map");
 	}
 
 	//Makes the camera focus on the main player
@@ -568,6 +568,24 @@ void TestScene::GamepadTrigger(XInputController* con) {
 
 void TestScene::KeyboardHold() {
 	//Keyboard button held
+
+	if (Input::GetKey(Key::Control))
+	{
+		auto& MainCamera = ECS::GetComponent<Camera>(EntityIdentifier::MainCamera());
+
+		if (Input::GetKey(Key::Z))
+		{
+			if (MainCamera.GetOrthoSize().x !=-13 && MainCamera.GetOrthoSize().y!=13 && MainCamera.GetOrthoSize().z!=-13)
+			MainCamera.Zoom(1);
+			//printf("Orthogonial Size: %f %c %f %c %f \n",MainCamera.GetOrthoSize().x, ',', MainCamera.GetOrthoSize().y, ',', MainCamera.GetOrthoSize().z);
+		}
+
+		if (Input::GetKey(Key::X))
+		{
+			auto& MainCamera = ECS::GetComponent<Camera>(EntityIdentifier::MainCamera());
+			MainCamera.Zoom(-1);
+		}
+	}
 
 	//move up 
 	if (Input::GetKey(Key::W) || Input::GetKey(Key::UpArrow))
