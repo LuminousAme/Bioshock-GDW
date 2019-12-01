@@ -116,7 +116,7 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		animController.SetActiveAnim(0);
 
 		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 35, 35, true, &animController);
-		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, 99.f));
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(119.f, -25.f, 99.f));
 
 		//Sets up identifier 
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
@@ -797,64 +797,84 @@ void TestScene::mainPlayerMove() {
 	}
 }
 
-bool TestScene::WallCollision(vec3 position)
-{
-	if (position.y <= 254 && position.x >= -291 && position.x<=129){
-		
+bool LevelOne(vec3 position) {
+
+	if (position.y <= 254 && position.x >= -291 && position.x <= 129) {
+
 		//covers corner of the map for start position
-		if (position.x <= 129 && position.x >= 109 && position.y >= -32) {
+		if (position.x >= 109 && position.y >= -32) {
 			return false;
 		}
 
 		//cover box area of the map
-		if (position.x >= -124) 
+		if (position.x >= -124)
 		{
+			//if going near the bottom of the map
 			if (position.y >= 0) {
 
 				if (position.x <= 129)
 				{
 					return false;
-			
+
 				}
 				else if (position.y >= -231)
 				{
 					return false;
 				}
-			
+
 			}
-			
+
 		}
-		if (position.x <= -124 && position.x >= -173) 
+		if (position.x <= -124 && position.x >= -173)
 		{
-			if (position.y >= 237) 
+			if (position.y >= 237)
 			{
 				return false;
 			}
 		}
 		if (position.x <= -173) {
-			
+
 			//stairways 
 			if (position.x >= -191) {
-					return false;
+				return false;
 			}
 
-			if (position.y >= -132) 
+			if (position.y >= -132)
 			{
-				return false; 
+				return false;
 			}
 
-			if (position.y <= -182 && position.y>=-231)
+			if (position.y <= -182 && position.y >= -231)
 			{
 				return false;
 			}
 		}
 
 		if (position.y <= -247 && position.y <= -181)
-			{
-				return false;
-			}
-
+		{
+			return false;
 		}
 
+	}
 	return true;
+
+}
+bool TestScene::WallCollision(vec3 position)
+{
+	auto& animController = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+
+	switch (animController.GetActiveAnim()) {
+	case (0):
+		return LevelOne(position);
+		break;
+	case (1):
+		//return LevelOne(position);
+		break;
+	case (2):
+		//return LevelOne(position);
+		break;
+	default:
+		return true;
+	}
+
 	}
