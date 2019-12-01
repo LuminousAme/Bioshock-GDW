@@ -9,10 +9,15 @@ class TestScene : public Scene
 public:
 	TestScene(std::string name); 
 
+	//does not require override
+	void Switch();
+	void Attack();
+	void SpecialAttack();
+	bool WallCollision(vec3);
+
 	void InitScene(float windowWidth, float windowHeight) override; 
 
 	void Update() override; 
-
 	void AcceptInput() override; 
 	void GamepadInput(XInputController* con) override;
 

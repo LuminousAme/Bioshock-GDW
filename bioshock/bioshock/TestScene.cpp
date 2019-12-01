@@ -200,6 +200,38 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		ECS::SetUpIdentifier(entity, bitHolder, "Female Splicer");
 	}
 
+	//setup new entity, Lightning
+	{
+		//Our animation file 
+		auto animation = File::LoadJSON("ElectricShock.json");
+
+		//create new entity 
+		auto entity = ECS::CreateEntity();
+
+		//Add components
+		ECS::AttachComponent<Sprite>(entity);
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<AnimationController>(entity);
+
+		//Sets up components
+		std::string fileName = "Lightning.png";
+		auto& animController = ECS::GetComponent<AnimationController>(entity);
+
+		animController.InitUVs(fileName);
+
+		//Adds Shock animation
+		animController.AddAnimation(animation["Shock"]); //index 0
+
+		animController.SetActiveAnim(0);
+
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 15, 4, true, &animController);
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(10.f, 20.f, 99.f));
+
+		//Sets up identifier 
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "Lightning");
+	}
+
 	//setup new entity, Big Daddy
 	{
 		//Our animation file 
@@ -279,128 +311,10 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 	ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
 }
 
-void TestScene::Update() {
-	//display the effects 
-	VignetteEffect* tempVig = (VignetteEffect*)EffectManager::GetEffect(EffectManager::GetVignetteHandle());
-	tempVig->SetInnerRadius(0.01f);
-	tempVig->SetOuterRadius(0.6f);
-	tempVig->SetOpacity(1.f);
-
-	//moves the player
-	mainPlayerMove();
-
-
+//SPECIAL ABILITIES
+void TestScene::SpecialAttack() {
 	//grab a reference to the main player's animations
-	auto &animController = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
-	//WEAPON SWITCHING 
-
-	//switches the animation for which weapon is currently running 
-	if (weaponSwitch && (animController.GetActiveAnim() == 0 || animController.GetActiveAnim() == 1)) {
-		//if it's on the wrench 
-		if (animController.GetActiveAnim() == 0) {
-			//switch to the gun 
-			animController.SetActiveAnim(1);
-			currentWeapon = 1;
-		}
-		//otherwise it must be on the gun 
-		else {
-			//so switch to the wrench 
-			animController.SetActiveAnim(0);
-			currentWeapon = 0;
-		}
-		//set the switching flag, and flag to allow switch again to false 
-		weaponSwitch = false;
-		allowSwitchAgain = false;
-	}
-
-	//update the time since last switch up to 0.2 seconds, then reset it and allow the weapon to be switched again 
-	if (allowSwitchAgain == false && timeSinceLastSwitch < 0.2f) {
-		timeSinceLastSwitch += Timer::deltaTime;
-	}
-	else if (allowSwitchAgain == false && timeSinceLastSwitch >= 0.2f) {
-		allowSwitchAgain = true;
-		timeSinceLastSwitch = 0;
-	}
-
-	//WEAPON ATTACKING
-
-	//if the player has inputed an attack 
-	if (attack) {
-		//check if there's a controller connected
-		bool controllerConnected = false;
-		int controllerIndex = 0;
-		for (int i = 0; i < 3; i++) {
-			if (XInputManager::ControllerConnected(i))
-			{
-				//if there is save it's index 
-				controllerConnected = true;
-				controllerIndex = i;
-			}
-		}
-
-		//if there is a controller connected
-		if (controllerConnected) {
-			//grab a reference to it 
-			XInputController* tempCon;
-			tempCon = XInputManager::GetController(controllerIndex);
-			//and make it begin rumbling 
-			tempCon->SetRumble(controllerIndex, 20000);
-		}
-
-		//set the input flag to false
-		attack = false;
-		//and the in progress flag to true 
-		currentlyAttacking = true;
-		//if it's the wrench animation
-		if (animController.GetActiveAnim() == 0) {
-			//begin swinging wrench
-			animController.SetActiveAnim(4);
-		}
-		//if it's the gun animation
-		else if (animController.GetActiveAnim() == 1) {
-			//begin shooting gun 
-			animController.SetActiveAnim(5);
-		}
-	}
-
-	//if the attack in progress flag is true, but the animation has ended
-	if (currentlyAttacking && animController.GetAnimation(animController.GetActiveAnim()).GetAnimationDone()) {
-		//check if there's a controller connected
-		bool controllerConnected = false;
-		int controllerIndex = 0;
-		for (int i = 0; i < 3; i++) {
-			if (XInputManager::ControllerConnected(i))
-			{
-				//if there is save it's index 
-				controllerConnected = true;
-				controllerIndex = i;
-			}
-		}
-
-		//if there is a controller connected
-		if (controllerConnected) {
-			//grab a reference to it 
-			XInputController* tempCon;
-			tempCon = XInputManager::GetController(controllerIndex);
-			//and make it stop rumbling 
-			tempCon->SetRumble(controllerIndex, 0);
-			tempCon->SetIsRumbling(false);
-		}
-
-		animController.GetAnimation(animController.GetActiveAnim()).Reset();
-		//set the flag to false
-		currentlyAttacking = false;
-		attack = false;
-		//and reset to the animations for just holding the weapon 
-		if (animController.GetActiveAnim() == 4) {
-			animController.SetActiveAnim(0);
-		}
-		else {
-			animController.SetActiveAnim(1);
-		}
-	}
-
-	//SPECIAL ABILITIES
+	auto& animController = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
 
 	//if the player has inputed a lightning attack 
 	if (lightning) {
@@ -477,6 +391,141 @@ void TestScene::Update() {
 			animController.SetActiveAnim(1);
 		}
 	}
+
+
+}
+//WEAPON ATTACKING
+void TestScene::Attack() {
+	
+	//grab a reference to the main player's animations
+	auto& animController = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+
+	//if the player has inputed an attack 
+	if (attack) {
+		//check if there's a controller connected
+		bool controllerConnected = false;
+		int controllerIndex = 0;
+		for (int i = 0; i < 3; i++) {
+			if (XInputManager::ControllerConnected(i))
+			{
+				//if there is save it's index 
+				controllerConnected = true;
+				controllerIndex = i;
+			}
+		}
+
+		//if there is a controller connected
+		if (controllerConnected) {
+			//grab a reference to it 
+			XInputController* tempCon;
+			tempCon = XInputManager::GetController(controllerIndex);
+			//and make it begin rumbling 
+			tempCon->SetRumble(controllerIndex, 20000);
+		}
+
+		//set the input flag to false
+		attack = false;
+		//and the in progress flag to true 
+		currentlyAttacking = true;
+		//if it's the wrench animation
+		if (animController.GetActiveAnim() == 0) {
+			//begin swinging wrench
+			animController.SetActiveAnim(4);
+		}
+		//if it's the gun animation
+		else if (animController.GetActiveAnim() == 1) {
+			//begin shooting gun 
+			animController.SetActiveAnim(5);
+		}
+	}
+
+	//if the attack in progress flag is true, but the animation has ended
+	if (currentlyAttacking && animController.GetAnimation(animController.GetActiveAnim()).GetAnimationDone()) {
+		//check if there's a controller connected
+		bool controllerConnected = false;
+		int controllerIndex = 0;
+		for (int i = 0; i < 3; i++) {
+			if (XInputManager::ControllerConnected(i))
+			{
+				//if there is save it's index 
+				controllerConnected = true;
+				controllerIndex = i;
+			}
+		}
+
+		//if there is a controller connected
+		if (controllerConnected) {
+			//grab a reference to it 
+			XInputController* tempCon;
+			tempCon = XInputManager::GetController(controllerIndex);
+			//and make it stop rumbling 
+			tempCon->SetRumble(controllerIndex, 0);
+			tempCon->SetIsRumbling(false);
+		}
+
+		animController.GetAnimation(animController.GetActiveAnim()).Reset();
+		//set the flag to false
+		currentlyAttacking = false;
+		attack = false;
+		//and reset to the animations for just holding the weapon 
+		if (animController.GetActiveAnim() == 4) {
+			animController.SetActiveAnim(0);
+		}
+		else {
+			animController.SetActiveAnim(1);
+		}
+	}
+}
+
+//WEAPON SWITCHING 
+void TestScene::Switch() {
+	//grab a reference to the main player's animations
+	auto& animController = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+
+	//switches the animation for which weapon is currently running 
+	if (weaponSwitch && (animController.GetActiveAnim() == 0 || animController.GetActiveAnim() == 1)) {
+		//if it's on the wrench 
+		if (animController.GetActiveAnim() == 0) {
+			//switch to the gun 
+			animController.SetActiveAnim(1);
+			currentWeapon = 1;
+		}
+		//otherwise it must be on the gun 
+		else {
+			//so switch to the wrench 
+			animController.SetActiveAnim(0);
+			currentWeapon = 0;
+		}
+		//set the switching flag, and flag to allow switch again to false 
+		weaponSwitch = false;
+		allowSwitchAgain = false;
+	}
+
+	//update the time since last switch up to 0.2 seconds, then reset it and allow the weapon to be switched again 
+	if (allowSwitchAgain == false && timeSinceLastSwitch < 0.2f) {
+		timeSinceLastSwitch += Timer::deltaTime;
+	}
+	else if (allowSwitchAgain == false && timeSinceLastSwitch >= 0.2f) {
+		allowSwitchAgain = true;
+		timeSinceLastSwitch = 0;
+	}
+
+}
+void TestScene::Update() {
+	//display the effects 
+	VignetteEffect* tempVig = (VignetteEffect*)EffectManager::GetEffect(EffectManager::GetVignetteHandle());
+	tempVig->SetInnerRadius(0.01f);
+	tempVig->SetOuterRadius(0.6f);
+	tempVig->SetOpacity(1.f);
+
+	//moves the player
+	mainPlayerMove();
+	//switches weapons
+	Switch();
+	//controls weapon attack for melee and gun
+	Attack();
+	//control special attack
+	SpecialAttack();
 }
 
 void TestScene::AcceptInput() {
@@ -743,5 +792,69 @@ void TestScene::mainPlayerMove() {
 		(vec3(acceleration.x, acceleration.y, 0.f) * (0.5f) * (Timer::deltaTime * Timer::deltaTime));
 
 	//Sets updated position 
-	ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()).SetPosition(position);
+	if (!WallCollision(position)) {
+		ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()).SetPosition(position);
+	}
 }
+
+bool TestScene::WallCollision(vec3 position)
+{
+	if (position.y <= 254 && position.x >= -291 && position.x<=129){
+		
+		//covers corner of the map for start position
+		if (position.x <= 129 && position.x >= 109 && position.y >= -32) {
+			return false;
+		}
+
+		//cover box area of the map
+		if (position.x >= -124) 
+		{
+			if (position.y >= 0) {
+
+				if (position.x <= 129)
+				{
+					return false;
+			
+				}
+				else if (position.y >= -231)
+				{
+					return false;
+				}
+			
+			}
+			
+		}
+		if (position.x <= -124 && position.x >= -173) 
+		{
+			if (position.y >= 237) 
+			{
+				return false;
+			}
+		}
+		if (position.x <= -173) {
+			
+			//stairways 
+			if (position.x >= -191) {
+					return false;
+			}
+
+			if (position.y >= -132) 
+			{
+				return false; 
+			}
+
+			if (position.y <= -182 && position.y>=-231)
+			{
+				return false;
+			}
+		}
+
+		if (position.y <= -247 && position.y <= -181)
+			{
+				return false;
+			}
+
+		}
+
+	return true;
+	}
