@@ -2,6 +2,7 @@
 
 Scene::Scene(std::string name)
 {
+	m_physicsWorld = new b2World(m_gravity); 
 	m_name = name;
 }
 
@@ -46,6 +47,21 @@ std::string Scene::GetName() const
 void Scene::SetName(std::string name)
 {
 	m_name = name;
+}
+
+b2Vec2 Scene::GetGravity() const
+{
+	return m_gravity;
+}
+
+void Scene::SetGravity(b2Vec2 grav)
+{
+	m_gravity = grav; 
+}
+
+b2World& Scene::GetPhysicsWorld()
+{
+	return *m_physicsWorld; 
 }
 
 void Scene::SetWindowSize(float windowWidth, float windowHeight)

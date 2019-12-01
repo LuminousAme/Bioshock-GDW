@@ -3,6 +3,7 @@
 TestScene::TestScene(std::string name)
 	: Scene(name)
 {
+	m_gravity = b2Vec2(float32(0.f), float32(0.f)); 
 }
 
 void TestScene::InitScene(float windowWidth, float windowHeight)
@@ -58,6 +59,7 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		ECS::AttachComponent<Sprite>(entity); 
 		ECS::AttachComponent<Transform>(entity); 
 		ECS::AttachComponent<AnimationController>(entity); 
+		ECS::AttachComponent<PhysicsBody>(entity); 
 
 		//Sets up components
 		std::string fileName = "jack spritesheet.png"; 
@@ -81,8 +83,22 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 48, 48, true, &animController); 
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, 99.f));
 
+		auto& tempSpr = ECS::GetComponent<Sprite>(entity); 
+		auto& tempPhysBod = ECS::GetComponent<PhysicsBody>(entity);
+		auto& tempTrans = ECS::GetComponent<Transform>(entity);
+
+		b2Body* tempBody; 
+		b2BodyDef tempDef; 
+		tempDef.type = b2_dynamicBody; 
+		tempDef.position.Set(float32(tempTrans.GetPositionX()), float32(tempTrans.GetPositionY())); 
+
+		tempBody = m_physicsWorld->CreateBody(&tempDef); 
+
+		tempPhysBod = PhysicsBody(tempBody, float(tempSpr.GetWidth() * 0.4f), float(tempSpr.GetHeight() * 0.4f),
+			vec2(0.f, 0.f), false);
+
 		//Sets up identifier 
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit() | EntityIdentifier::PhysicsBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Jack"); 
 		ECS::SetIsMainPlayer(entity, true); 
 	}
@@ -481,82 +497,50 @@ void TestScene::MouseWheel(SDL_MouseWheelEvent evnt) {
 }
 
 void TestScene::mainPlayerMove() {
-	vec3 position = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()).GetPosition();
-
-	//calculates accleration 
-	vec2 acceleration = vec2(0.f, 0.f);
+	auto& tempPhysBod = ECS::GetComponent<PhysicsBody>(EntityIdentifier::MainPlayer()); 
 
 	//Left stick, movement 
 	if (directionx == 1) {
-		acceleration.x = -20.f;
+		tempPhysBod.ApplyForce(vec3(-8000, 0, 0));
 	}
 	else if (directionx == 2) {
-		acceleration.x = 20.f;
+		tempPhysBod.ApplyForce(vec3(8000, 0, 0));
 	}
 	//stop moving left/right
 	else {
-		acceleration.x = 0;
-		if (m_velocity.x > 0 && m_velocity.x >= 0.8f) {
-			m_velocity.x -= 0.8f;
+		tempPhysBod.ApplyForce(vec3(0.f, tempPhysBod.GetForce().y, 0.f)); 
+		tempPhysBod.SetAcceleration(vec3(0.f, tempPhysBod.GetAcceleration().y, 0.f)); 
+		if (tempPhysBod.GetVelocity().x > 0.f && tempPhysBod.GetVelocity().x >= 0.8f) {
+			tempPhysBod.SetVelocity(vec3(tempPhysBod.GetVelocity().x - 0.8f, tempPhysBod.GetVelocity().y, 0.f)); 
 		}
-		else if (m_velocity.x < 0 && m_velocity.x <= -0.8f) {
-			m_velocity.x += 0.8f;
+		else if (tempPhysBod.GetVelocity().x < 0.f && tempPhysBod.GetVelocity().x <= -0.8f) {
+			tempPhysBod.SetVelocity(vec3(tempPhysBod.GetVelocity().x + 0.8f, tempPhysBod.GetVelocity().y, 0.f));
 		}
 		else {
-			m_velocity.x = 0;
+			tempPhysBod.SetVelocity(vec3(0.f, tempPhysBod.GetVelocity().y, 0.f));
 		}
 	}
 
 	if (directiony == 1) {
-		acceleration.y = -20.f;
+		tempPhysBod.ApplyForce(vec3(0, -8000, 0));
 	}
 	else if (directiony == 2) {
-		acceleration.y = 20.f;
+		tempPhysBod.ApplyForce(vec3(0, 8000, 0));
 	}
 	//stop moving up/down
 	else {
-		acceleration.y = 0;
-		if (m_velocity.y > 0 && m_velocity.y >= 0.8f) {
-			m_velocity.y -= 0.8f;
+		
+		tempPhysBod.ApplyForce(vec3(tempPhysBod.GetForce().x, 0.f, 0.f));
+		tempPhysBod.SetAcceleration(vec3(tempPhysBod.GetAcceleration().x, 0.f, 0.f));
+		if (tempPhysBod.GetVelocity().y > 0.f && tempPhysBod.GetVelocity().y >= 0.8f) {
+			tempPhysBod.SetVelocity(vec3(tempPhysBod.GetVelocity().x, tempPhysBod.GetVelocity().y - 0.8f, 0.f));
 		}
-		else if (m_velocity.y < 0 && m_velocity.y <= -0.8f) {
-			m_velocity.y += 0.8f;
+		else if (tempPhysBod.GetVelocity().x < 0.f && tempPhysBod.GetVelocity().x <= -0.8f) {
+			tempPhysBod.SetVelocity(vec3(tempPhysBod.GetVelocity().x, tempPhysBod.GetVelocity().y + 0.8f, 0.f));
 		}
 		else {
-			m_velocity.y = 0;
+			tempPhysBod.SetVelocity(vec3(tempPhysBod.GetVelocity().x, 0.f, 0.f));
+			
 		}
 	}
-
-	//Update velocity if not over max 
-	//x-axis 
-	if (m_velocity.x < -31.f)
-	{
-		m_velocity.x = -30.8f;
-	}
-	else if (m_velocity.x > 31.f)
-	{
-		m_velocity.x = 30.8f;
-	}
-	else {
-		m_velocity.x = m_velocity.x + (acceleration.x * Timer::deltaTime);
-	}
-	//y-axis 
-	if (m_velocity.y < -31.f)
-	{
-		m_velocity.y = -30.8f;
-	}
-	else if (m_velocity.y > 31.f)
-	{
-		m_velocity.y = 30.8f;
-	}
-	else {
-		m_velocity.y = m_velocity.y + (acceleration.y * Timer::deltaTime);
-	}
-
-	//Updates position 
-	position = position + (vec3(m_velocity.x, m_velocity.y, 0.f) * Timer::deltaTime) +
-		(vec3(acceleration.x, acceleration.y, 0.f) * (0.5f) * (Timer::deltaTime * Timer::deltaTime));
-
-	//Sets updated position 
-	ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()).SetPosition(position);
 }

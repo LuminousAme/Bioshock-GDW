@@ -10,6 +10,7 @@
 #include "EntityIdentifier.h"
 #include "HoriztontalScroll.h"
 #include "VerticalScroll.h"
+#include "PhysicsBody.h"
 
 class ECS abstract
 {
@@ -69,7 +70,7 @@ inline void ECS::AttachComponent(unsigned entity, T object)
 }
 
 template<typename T>
-inline T & ECS::GetComponent(unsigned entity)
+inline T& ECS::GetComponent(unsigned entity)
 {
 	return m_reg->get<T>(entity);
 }

@@ -49,6 +49,8 @@ void Game::InitGame()
 	m_register = m_activeScene->GetScene(); 
 
 	EffectManager::CreateEffect(Vignette, BackEnd::GetWindowWidth(), BackEnd::GetWindowHeight());; 
+
+	PhysicsSystem::Init(); 
 }
 
 bool Game::Run()
@@ -81,6 +83,7 @@ bool Game::Run()
 			//Accept all input
 			AcceptInput();
 		}
+
 		//swaps to the approriate scene, might need to change later
 		if (m_currentScene != m_sceneRunning) {
 			m_sceneRunning = m_currentScene; 
@@ -98,6 +101,9 @@ void Game::Update()
 	Timer::Update();
 	//Update the backend
 	BackEnd::Update(m_register);
+
+	//Update Physics System
+	PhysicsSystem::Update(m_register, m_activeScene->GetPhysicsWorld()); 
 
 	m_activeScene->Update(); 
 }
@@ -204,6 +210,12 @@ void Game::KeyboardUp()
 			UI::InitImGUI();
 		}
 		m_guiActive = !m_guiActive;
+	}
+
+	if (Input::GetKeyUp(Key::P))
+	{
+		PhysicsBody::SetDraw(!PhysicsBody::GetDraw());
+		printf("p\n");
 	}
 }
 
