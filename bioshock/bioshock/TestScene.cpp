@@ -505,7 +505,6 @@ void TestScene::Update() {
 	ShowCursor(false);
 
 	auto& playerTrans = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer());
-	printf("Player pos: %f, %f\n", playerTrans.GetPositionX(), playerTrans.GetPositionY());
 
 	auto& pResources = ECS::GetComponent<EnResources>(EntityIdentifier::MainPlayer()); 
 	//update the player resources HUD
