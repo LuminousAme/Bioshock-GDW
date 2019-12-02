@@ -22,6 +22,19 @@ public:
 	//Gets gun trail 
 	static unsigned int GunTrail(); 
 	bool GetIsGunTrail() const; 
+	//Gets health pack 
+	static unsigned int HealthPack(); 
+	bool GetIsHealthPack(); 
+	//Get ammo counters
+	static unsigned int AmmoCount10s(); 
+	bool GetIsAmmoCount10s(); 
+	static unsigned int AmmoCount1s(); 
+	bool GetIsAmmoCount1s(); 
+	//Get bars
+	static unsigned int HealthBar();
+	bool GetIsHealthBar();
+	static unsigned int ManaBar();
+	bool GetIsManaBar();
 
 	//Get entity number
 	unsigned int GetEntity() const;
@@ -40,6 +53,8 @@ public:
 	static unsigned int PhysicsBit();
 	static unsigned int HoriScrollCameraBit(); 
 	static unsigned int VertScrollCameraBit(); 
+	static unsigned int HudAspectBit();
+	static unsigned int EnResourcesBit();
 
 	//Setters
 	//Sets main player entity
@@ -54,6 +69,19 @@ public:
 	//Sets guntrail entity 
 	static void GunTrail(unsigned int entity); 
 	void SetIsGunTrail(bool main); 
+	//Sets healthpack entity
+	static void HealthPack(unsigned int entity); 
+	void SetIsHealthPack(bool main);
+	//Sets ammo counters
+	static void AmmoCount10s(unsigned int entity); 
+	void SetIsAmmoCounts10s(bool main); 
+	static void AmmoCount1s(unsigned int entity); 
+	void SetIsAmmoCount1s(bool main);
+	//Sets bars
+	static void Healthbar(unsigned int entity);
+	void SetIsHealthbar(bool main);
+	static void Manabar(unsigned int entity);
+	void SetIsManabar(bool main);
 
 	void SetIsEntity(bool main);
 	//Set entity number
@@ -78,6 +106,19 @@ private:
 	//Gun trail 
 	static unsigned int m_guntrail; 
 	bool m_isGuntrail; 
+	//Healthpacks
+	static unsigned int m_healthpack;
+	bool m_isHealthpack;
+	//both ammo counters
+	static unsigned int m_ammocount10s; 
+	bool m_isAmmocount10s; 
+	static unsigned int m_ammocount1s; 
+	bool m_isAmmocount1s; 
+	//bars
+	static unsigned int m_healthbar;
+	bool m_isHealthbar; 
+	static unsigned int m_manabar;
+	bool m_isManabar;
 
 	//Stores the entity number
 	unsigned int m_entity;
@@ -98,6 +139,8 @@ private:
 	static unsigned int m_physicsBit;
 	static unsigned int m_horiScrollCameraBit; 
 	static unsigned int m_vertScrollCameraBit; 
+	static unsigned int m_hudAspectBit; 
+	static unsigned int m_enResourcesBit;
 };
 
 #ifndef __ENTITYIDENTIFIERJSON_H__

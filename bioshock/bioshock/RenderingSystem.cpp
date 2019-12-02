@@ -73,6 +73,20 @@ void RenderingSystem::Update(entt::registry* reg)
 		//updates the scroll
 		scroll.Update(BackEnd::GetAspectRatio());
 	}
+
+	//Creates a view of all hud entities
+	auto view3 = reg->view<HudAspect, Transform>(); 
+
+	for (auto entity : view3)
+	{
+		//grab references to the hud and player's transforms 
+		auto& hTrans = view3.get<Transform>(entity);
+		auto& hHud = view3.get<HudAspect>(entity);
+		auto& pTrans = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer());
+
+		hTrans.SetPosition(vec3(pTrans.GetPositionX() + hHud.getHudAdjust().x, pTrans.GetPositionY() + hHud.getHudAdjust().y, hTrans.GetPositionZ()));
+		
+	}
 }
 
 struct

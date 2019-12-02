@@ -30,6 +30,7 @@ public:
 
 	//Move the main player
 	void mainPlayerMove(); 
+
 private:
 	//main player movement direction
 	int directionx = 0;

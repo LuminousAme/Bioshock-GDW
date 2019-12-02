@@ -48,8 +48,6 @@ void Game::InitGame()
 	//Sets m_register to point to the register in the active scene 
 	m_register = m_activeScene->GetScene(); 
 
-	EffectManager::CreateEffect(Vignette, BackEnd::GetWindowWidth(), BackEnd::GetWindowHeight());; 
-
 	PhysicsSystem::Init(); 
 }
 

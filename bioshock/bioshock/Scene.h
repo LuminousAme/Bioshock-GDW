@@ -117,6 +117,22 @@ inline void to_json(nlohmann::json& j, const Scene& scene)
 			j[std::to_string(counter)]["Transform"] = scene.GetScene()->get<Transform>(entity);
 		}
 
+		//If indentity includes the HudAspect bit
+			//This means that the entity is part of the hud 
+		if (identity & EntityIdentifier::HudAspectBit())
+		{
+			//Stores the hudaspect
+			j[std::to_string(counter)]["HudAspect"] = scene.GetScene()->get<HudAspect>(entity);
+		}
+
+		//If identity includes the EnResources bit
+			//This means that the entity contains resources
+		if (identity & EntityIdentifier::EnResourcesBit())
+		{
+			//Stores the resources
+			j[std::to_string(counter)]["EnResources"] = scene.GetScene()->get<EnResources>(entity);
+		}
+
 		//If you create new classes that you add as a component,
 		//you need to #1 add a static (unique) bit for that class
 		//And then add more if statements after this point
@@ -165,6 +181,41 @@ inline void from_json(const nlohmann::json& j, Scene& scene)
 		{
 			//Sets main player
 			EntityIdentifier::MainPlayer(entity);
+		}
+		if (reg.get<EntityIdentifier>(entity).GetIsCrosshair())
+		{
+			//Sets the crosshair
+			EntityIdentifier::Crosshair(entity);
+		}
+		if (reg.get<EntityIdentifier>(entity).GetIsGunTrail())
+		{
+			//Sets the gun trail 
+			EntityIdentifier::GunTrail(entity);
+		}
+		if (reg.get<EntityIdentifier>(entity).GetIsHealthPack())
+		{
+			//Sets the health pace counter
+			EntityIdentifier::HealthPack(entity);
+		}
+		if (reg.get<EntityIdentifier>(entity).GetIsAmmoCount10s())
+		{
+			//Sets the 10s digit ammo counter
+			EntityIdentifier::AmmoCount10s(entity);
+		}
+		if (reg.get<EntityIdentifier>(entity).GetIsAmmoCount1s())
+		{
+			//Sets the 1s digit ammo counter
+			EntityIdentifier::AmmoCount1s(entity);
+		}
+		if (reg.get<EntityIdentifier>(entity).GetIsHealthBar())
+		{
+			//Sets the healthbar
+			EntityIdentifier::Healthbar(entity);
+		}
+		if (reg.get<EntityIdentifier>(entity).GetIsManaBar())
+		{
+			//Sets the manabar
+			EntityIdentifier::Manabar(entity);
 		}
 
 		unsigned int identity = reg.get<EntityIdentifier>(entity).GetIdentifier();
@@ -216,6 +267,18 @@ inline void from_json(const nlohmann::json& j, Scene& scene)
 			}
 		}
 
+		//If Identitdy includes the HudAspect bit 
+		//that means that the entity is a part of the HUD 
+		if (identity & EntityIdentifier::HudAspectBit())
+		{
+			//Adds the hud aspect to the entity
+			reg.assign<HudAspect>(entity);
+
+			//set the HudAspect to the saved verison
+			reg.get<HudAspect>(entity) = j["Scene"][std::to_string(i)]["HudAspect"];
+			//hud aspect requires no further initialization
+		}
+
 		//If Identity includes the Transform bit
 			//This means that the entity contains a Transform
 		if (identity & EntityIdentifier::TransformBit())
@@ -227,6 +290,17 @@ inline void from_json(const nlohmann::json& j, Scene& scene)
 
 			//Transforms require no further initialization
 		}
+
+		//If Identity includes the EnResources bit
+			//that means that the entity contains resources
+		if (identity & EntityIdentifier::EnResourcesBit())
+		{
+			//Adds enresources to the entity
+			reg.assign<EnResources>(entity); 
+			//Sets the enResoucres to the saved version 
+			reg.get<EnResources>(entity) = j["Scene"][std::to_string(i)]["EnResources"];
+		}
+
 	}
 }
 

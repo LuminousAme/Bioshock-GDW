@@ -4,6 +4,11 @@ unsigned int EntityIdentifier::m_mainCamera = 0;
 unsigned int EntityIdentifier::m_mainPlayer = 0;
 unsigned int EntityIdentifier::m_crosshair = 0;
 unsigned int EntityIdentifier::m_guntrail = 0;
+unsigned int EntityIdentifier::m_healthpack = 0;
+unsigned int EntityIdentifier::m_ammocount10s = 0; 
+unsigned int EntityIdentifier::m_ammocount1s = 0; 
+unsigned int EntityIdentifier::m_healthbar = 0;
+unsigned int EntityIdentifier::m_manabar = 0;
 
 //start on 0x1
 unsigned int EntityIdentifier::m_cameraBit			= 0x1;
@@ -15,6 +20,8 @@ unsigned int EntityIdentifier::m_physicsBit			= 0x100000;
 unsigned int EntityIdentifier::m_horiScrollCameraBit= 0x1000000;
 unsigned int EntityIdentifier::m_vertScrollCameraBit= 0x10000000;
 //start on 0x2
+unsigned int EntityIdentifier::m_hudAspectBit		= 0x2;
+unsigned int EntityIdentifier::m_enResourcesBit		= 0x20;
 
 //(having just camera means the bit = 1)
 //(having sprite, animation and transform)
@@ -70,6 +77,56 @@ unsigned int EntityIdentifier::GunTrail()
 bool EntityIdentifier::GetIsGunTrail() const
 {
 	return m_isGuntrail;
+}
+
+unsigned int EntityIdentifier::HealthPack()
+{
+	return m_healthpack;
+}
+
+bool EntityIdentifier::GetIsHealthPack()
+{
+	return m_isHealthpack;
+}
+
+unsigned int EntityIdentifier::AmmoCount10s()
+{
+	return m_ammocount10s;
+}
+
+bool EntityIdentifier::GetIsAmmoCount10s()
+{
+	return m_isAmmocount10s;
+}
+
+unsigned int EntityIdentifier::AmmoCount1s()
+{
+	return m_ammocount1s;
+}
+
+bool EntityIdentifier::GetIsAmmoCount1s()
+{
+	return m_isAmmocount1s;
+}
+
+unsigned int EntityIdentifier::HealthBar()
+{
+	return m_healthbar;
+}
+
+bool EntityIdentifier::GetIsHealthBar()
+{
+	return m_isHealthbar;
+}
+
+unsigned int EntityIdentifier::ManaBar()
+{
+	return m_manabar;
+}
+
+bool EntityIdentifier::GetIsManaBar()
+{
+	return m_isManabar;
 }
 
 unsigned int EntityIdentifier::GetEntity() const
@@ -142,6 +199,16 @@ unsigned int EntityIdentifier::VertScrollCameraBit()
 	return m_vertScrollCameraBit;
 }
 
+unsigned int EntityIdentifier::HudAspectBit()
+{
+	return m_hudAspectBit;
+}
+
+unsigned int EntityIdentifier::EnResourcesBit()
+{
+	return m_enResourcesBit;
+}
+
 void EntityIdentifier::MainPlayer(unsigned int entity)
 {
 	//Sets the main player entity
@@ -184,6 +251,56 @@ void EntityIdentifier::GunTrail(unsigned int entity)
 void EntityIdentifier::SetIsGunTrail(bool main)
 {
 	m_isGuntrail = main; 
+}
+
+void EntityIdentifier::HealthPack(unsigned int entity)
+{
+	m_healthpack = entity;
+}
+
+void EntityIdentifier::SetIsHealthPack(bool main)
+{
+	m_isHealthpack = main;
+}
+
+void EntityIdentifier::AmmoCount10s(unsigned int entity)
+{
+	m_ammocount10s = entity;
+}
+
+void EntityIdentifier::SetIsAmmoCounts10s(bool main)
+{
+	m_isAmmocount10s = main;
+}
+
+void EntityIdentifier::AmmoCount1s(unsigned int entity)
+{
+	m_ammocount1s = entity; 
+}
+
+void EntityIdentifier::SetIsAmmoCount1s(bool main)
+{
+	m_isAmmocount1s = main; 
+}
+
+void EntityIdentifier::Healthbar(unsigned int entity)
+{
+	m_healthbar = entity;
+}
+
+void EntityIdentifier::SetIsHealthbar(bool main)
+{
+	m_isHealthbar = main;
+}
+
+void EntityIdentifier::Manabar(unsigned int entity)
+{
+	m_manabar = entity; 
+}
+
+void EntityIdentifier::SetIsManabar(bool main)
+{
+	m_isManabar = main;
 }
 
 void EntityIdentifier::SetIsEntity(bool main)

@@ -36,9 +36,9 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 
 		//Sets up scrolls
 		ECS::GetComponent<HorizontalScroll>(entity).SetCam(&ECS::GetComponent<Camera>(entity));
-		ECS::GetComponent<HorizontalScroll>(entity).SetOffSet(1.f); 
+		ECS::GetComponent<HorizontalScroll>(entity).SetOffSet(0.0001f);
 		ECS::GetComponent<VerticalScroll>(entity).SetCam(&ECS::GetComponent<Camera>(entity));
-		ECS::GetComponent<VerticalScroll>(entity).SetOffSet(1.f);
+		ECS::GetComponent<VerticalScroll>(entity).SetOffSet(0.0001f);
 
 		//Sets up the Identifier
 		unsigned int bitHolder = EntityIdentifier::CameraBit() | EntityIdentifier::HoriScrollCameraBit() | EntityIdentifier::VertScrollCameraBit(); 
@@ -60,6 +60,7 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		ECS::AttachComponent<Transform>(entity); 
 		ECS::AttachComponent<AnimationController>(entity); 
 		ECS::AttachComponent<PhysicsBody>(entity); 
+		ECS::AttachComponent<EnResources>(entity);
 
 		//Sets up components
 		std::string fileName = "jack spritesheet.png"; 
@@ -125,6 +126,224 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		ECS::SetIsCrosshair(entity, true); 
 	}
 
+	//Setup UI (health bar surrond) entity 
+	{
+		//Creates entity 
+		auto entity = ECS::CreateEntity(); 
+
+		//Adds components
+		ECS::AttachComponent<Sprite>(entity); 
+		ECS::AttachComponent<Transform>(entity); 
+		ECS::AttachComponent<HudAspect>(entity);
+
+		//Sets up components 
+		std::string fileName = "HealthUI.png"; 
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 96, 96);
+
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-140.f, 55.f, 99.01f)); 
+		ECS::GetComponent<HudAspect>(entity).setHudAdjust(vec2(-140.f, 55.f));
+
+		//Sets up identifier
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::HudAspectBit(); 
+		ECS::SetUpIdentifier(entity, bitHolder, "Health bar surrond UI");
+	}
+
+	//Setup UI (mana bar surrond) entity
+	{
+		//Create entity
+		auto entity = ECS::CreateEntity(); 
+
+		//Adds components
+		ECS::AttachComponent<Sprite>(entity);
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<HudAspect>(entity);
+
+		//Sets up components 
+		std::string fileName = "ManaUI.png";
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 96, 96);
+
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-133.f, 45.f, 99.02f));
+		ECS::GetComponent<HudAspect>(entity).setHudAdjust(vec2(-133.f, 45.f));
+
+		//Sets up identifier
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::HudAspectBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "Mana bar surrond UI");
+	}
+
+	//Setup UI (health and mana bars) entities
+	for (int i = 0; i < 2; i++)
+	{
+		{
+			//Our animation file 
+			auto bars = File::LoadJSON("bars.json");
+
+			//Create entity
+			auto entity = ECS::CreateEntity();
+
+			//Sets up components 
+			std::string fileName; 
+			if(i == 0) fileName = "HealthBar.png";
+			else fileName = "ManaBar.png";
+
+			//Adds components
+			ECS::AttachComponent<Sprite>(entity); 
+			ECS::AttachComponent<Transform>(entity);
+			ECS::AttachComponent<HudAspect>(entity);
+			ECS::AttachComponent<AnimationController>(entity);
+
+			auto& animController = ECS::GetComponent<AnimationController>(entity);
+			animController.InitUVs(fileName);
+			//Adds 0
+			animController.AddAnimation(bars["0"]); //index 0
+			//Adds 1
+			animController.AddAnimation(bars["1"]); //index 1
+			//Adds 2
+			animController.AddAnimation(bars["2"]); //index 2 
+			//Adds 3
+			animController.AddAnimation(bars["3"]); //index 3
+			//Adds 4
+			animController.AddAnimation(bars["4"]); //index 4
+			//Adds 5
+			animController.AddAnimation(bars["5"]); //index 5
+			//Adds 6
+			animController.AddAnimation(bars["6"]); //index 6
+			//Adds 7
+			animController.AddAnimation(bars["7"]); //index 7
+			//Adds 8
+			animController.AddAnimation(bars["8"]); //index 8 
+			//Adds 9
+			animController.AddAnimation(bars["9"]); //index 9
+			//Adds 10
+			animController.AddAnimation(bars["10"]); //index 10
+			//Adds 11
+			animController.AddAnimation(bars["11"]); //index 11
+			//Adds 12
+			animController.AddAnimation(bars["12"]); //index 12 
+
+			animController.SetActiveAnim(12);
+			ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 100, 120, true, &animController);
+
+			if (i == 0)
+			{
+				ECS::GetComponent<Transform>(entity).SetPosition(vec3(-143.f, 65.f, 99.03f));
+				ECS::GetComponent<HudAspect>(entity).setHudAdjust(vec2(-143.f, 65.f));
+			}
+			else
+			{
+				ECS::GetComponent<Transform>(entity).SetPosition(vec3(-133.f, 52.f, 99.04f));
+				ECS::GetComponent<HudAspect>(entity).setHudAdjust(vec2(-133.f, 52.f));
+			}
+
+			//Sets up identifier
+			unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::HudAspectBit()
+				| EntityIdentifier::AnimationBit();
+			
+			if (i == 0)
+			{
+				ECS::SetUpIdentifier(entity, bitHolder, "Healthbar");
+				ECS::SetIsHealthBar(entity, true);
+			}
+			else
+			{
+				ECS::SetUpIdentifier(entity, bitHolder, "Manabar");
+				ECS::SetIsManaBar(entity, true);
+			}
+
+		}
+	}
+
+	//Setup UI (bumbers for ammo and healthpacks) entity
+	{
+		//Create entity
+		auto entity = ECS::CreateEntity(); 
+
+		//Adds components
+		ECS::AttachComponent<Sprite>(entity);
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<HudAspect>(entity);
+
+		//Sets up componetns
+		std::string fileName = "ammo and health packs bumper.png"; 
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 48, 48);
+
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(145.f, -70.f, 99.05));
+		ECS::GetComponent<HudAspect>(entity).setHudAdjust(vec2(145.f, -70.f));
+
+		//Sets up identifier
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::HudAspectBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "Resource bumper");
+	}
+
+	//Setup UI (num counters for ammo and healthpacks) entity 
+	for (int i = 0; i < 3; i++)
+	{
+		{
+			//Our animation (digits file 
+			auto nums = File::LoadJSON("numbers.json");
+
+			//Create entity
+			auto entity = ECS::CreateEntity();
+
+			//Adds components 
+			ECS::AttachComponent<Sprite>(entity);
+			ECS::AttachComponent<Transform>(entity);
+			ECS::AttachComponent<AnimationController>(entity);
+			ECS::AttachComponent<HudAspect>(entity);
+
+			//Sets up components 
+			std::string fileName = "numbers.png";
+
+			auto& animController = ECS::GetComponent<AnimationController>(entity);
+			animController.InitUVs(fileName);
+			//Adds 0
+			animController.AddAnimation(nums["0"]); //index 0
+			//Adds 1
+			animController.AddAnimation(nums["1"]); //index 1
+			//Adds 2
+			animController.AddAnimation(nums["2"]); //index 2 
+			//Adds 3
+			animController.AddAnimation(nums["3"]); //index 3
+			//Adds 4
+			animController.AddAnimation(nums["4"]); //index 4
+			//Adds 5
+			animController.AddAnimation(nums["5"]); //index 5
+			//Adds 6
+			animController.AddAnimation(nums["6"]); //index 6
+			//Adds 7
+			animController.AddAnimation(nums["7"]); //index 7
+			//Adds 8
+			animController.AddAnimation(nums["8"]); //index 8 
+			//Adds 9
+			animController.AddAnimation(nums["9"]); //index 9
+
+			animController.SetActiveAnim(0);
+
+			ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 10, 10, true, &animController);
+
+			if (i == 0)
+			{
+				ECS::GetComponent<Transform>(entity).SetPosition(vec3(152.f, -72.f, 99.06f));
+				ECS::GetComponent<HudAspect>(entity).setHudAdjust(vec2(152.f, -72.f));
+			}
+			else if (i == 1)
+			{
+				ECS::GetComponent<Transform>(entity).SetPosition(vec3(153.f, -88.f, 99.07f));
+				ECS::GetComponent<HudAspect>(entity).setHudAdjust(vec2(153.f, -88.f));
+			}
+			else {
+				ECS::GetComponent<Transform>(entity).SetPosition(vec3(158.f, -88.f, 99.08f));
+				ECS::GetComponent<HudAspect>(entity).setHudAdjust(vec2(158.f, -88.f));
+			}
+		
+			//Sets up identifier
+			unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::HudAspectBit()
+				| EntityIdentifier::AnimationBit();
+			ECS::SetUpIdentifier(entity, bitHolder, "HUD number" + std::to_string(i+1));
+			if (i == 0) ECS::SetIsHealthPack(entity, true);
+			else if (i == 1) ECS::SetIsAmmoCount10s(entity, true);
+			else ECS::SetIsAmmoCount1s(entity, true);
+		}
+	}
 	
 
 	//Setup gun trail entity 
@@ -178,6 +397,14 @@ void TestScene::Update() {
 	//hide the mouse (we only want the crosshair to display)
 	ShowCursor(false);
 
+	auto& pResources = ECS::GetComponent<EnResources>(EntityIdentifier::MainPlayer()); 
+	//update the player resources HUD
+	ECS::GetComponent<AnimationController>(EntityIdentifier::HealthPack()).SetActiveAnim(pResources.GetPacks()); //health packs count
+	ECS::GetComponent<AnimationController>(EntityIdentifier::AmmoCount10s()).SetActiveAnim(pResources.GetAmmo() / 10 % 10); //10s digit for ammo
+	ECS::GetComponent<AnimationController>(EntityIdentifier::AmmoCount1s()).SetActiveAnim(pResources.GetAmmo() % 10); //1s digit for ammo
+	ECS::GetComponent<AnimationController>(EntityIdentifier::HealthBar()).SetActiveAnim(pResources.GetHP()); //player hp 
+	ECS::GetComponent<AnimationController>(EntityIdentifier::ManaBar()).SetActiveAnim(pResources.GetMana()); //player mana
+
 	//if the time since the last gunshot was fired is less than 0.15f, add deltaTime 
 	if (timeSinceShotFired < 0.02f)
 	{
@@ -189,12 +416,6 @@ void TestScene::Update() {
 		gTrans.SetPosition(vec3(-10000.f, -10000.f, gTrans.GetPositionZ())); 
 		gTrans.SetRotationAngleZ(0); 
 	}
-
-	//display the effects 
-	VignetteEffect* tempVig = (VignetteEffect*)EffectManager::GetEffect(EffectManager::GetVignetteHandle());
-	tempVig->SetInnerRadius(0.01f);
-	tempVig->SetOuterRadius(0.6f);
-	tempVig->SetOpacity(1.f);
 
 	//moves the player
 	mainPlayerMove();
@@ -266,10 +487,14 @@ void TestScene::Update() {
 			animController.SetActiveAnim(4);
 		}
 		//if it's the gun animation
-		else if (animController.GetActiveAnim() == 1) {
+		else if (animController.GetActiveAnim() == 1 && pResources.GetAmmo() > 0) {
 			//begin shooting gun 
 			animController.SetActiveAnim(5);
 			fireGun = true;
+		}
+		else if (animController.GetActiveAnim() == 1 && pResources.GetAmmo() <= 0)
+		{
+			currentlyAttacking = false;
 		}
 	}
 
@@ -420,6 +645,9 @@ void TestScene::Update() {
 	if (fireGun) {
 		//stop firing the gun
 		fireGun = false; 
+
+		//remove one ammo
+		pResources.SetAmmo(pResources.GetAmmo() - 1);
 		//Grab a reference to the gun's transform
 		auto& gTrans = ECS::GetComponent<Transform>(EntityIdentifier::GunTrail());
 

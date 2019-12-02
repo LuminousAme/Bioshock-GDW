@@ -11,6 +11,8 @@
 #include "HoriztontalScroll.h"
 #include "VerticalScroll.h"
 #include "PhysicsBody.h"
+#include "HudAspect.h"
+#include "EnResources.h"
 
 class ECS abstract
 {
@@ -50,6 +52,11 @@ public:
 	static void SetIsMainPlayer(unsigned entity, bool mainPlayer);
 	static void SetIsCrosshair(unsigned entity, bool crosshair);
 	static void SetIsGunTrail(unsigned entity, bool guntrail); 
+	static void SetIsHealthPack(unsigned entity, bool healthpack);
+	static void SetIsAmmoCount10s(unsigned entity, bool ammocount10);
+	static void SetIsAmmoCount1s(unsigned entity, bool ammocount1);
+	static void SetIsHealthBar(unsigned entity, bool healthbar);
+	static void SetIsManaBar(unsigned entity, bool manabar);
 
 private:
 	static entt::registry* m_reg;

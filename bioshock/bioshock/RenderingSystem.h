@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "VertexManager.h"
 #include "EffectManager.h"
+#include "HudAspect.h"
 
 //A system utilizing ECS, the namespace just holds all the different functions
 namespace RenderingSystem
@@ -21,7 +22,6 @@ namespace RenderingSystem
 
 	//Draws everything drawable within the registry
 	void Draw(entt::registry* reg);
-
 }
 
 #endif // !__RENDERINGSYSTEM_H__

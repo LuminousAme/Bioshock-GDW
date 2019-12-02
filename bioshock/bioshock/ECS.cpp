@@ -78,8 +78,58 @@ void ECS::SetIsGunTrail(unsigned entity, bool guntrail)
 {
 	//Gets reference to the component
 	auto& id = GetComponent<EntityIdentifier>(entity);
-	//Sets crosshair entity
+	//Sets guntrail entity
 	EntityIdentifier::GunTrail(entity);
-	//Sets whether this entity is the crosshair
+	//Sets whether this entity is the guntrail
 	id.SetIsGunTrail(guntrail);
+}
+
+void ECS::SetIsHealthPack(unsigned entity, bool healthpack)
+{
+	//Gets reference to the component
+	auto& id = GetComponent<EntityIdentifier>(entity);
+	//Sets healthback entity
+	EntityIdentifier::HealthPack(entity);
+	//Sets whether this entity is the healthpack
+	id.SetIsHealthPack(healthpack);
+}
+
+void ECS::SetIsAmmoCount10s(unsigned entity, bool ammocount10)
+{
+	//Gets reference to the component
+	auto& id = GetComponent<EntityIdentifier>(entity);
+	//sets ammo count 10s digit entity
+	EntityIdentifier::AmmoCount10s(entity);
+	//Sets wheter this entity is the 10s counter for ammo
+	id.SetIsAmmoCounts10s(ammocount10);
+}
+
+void ECS::SetIsAmmoCount1s(unsigned entity, bool ammocount1)
+{
+	//Gets reference to the component
+	auto& id = GetComponent<EntityIdentifier>(entity);
+	//sets ammo count 1s digit entity
+	EntityIdentifier::AmmoCount1s(entity);
+	//Sets wheter this entity is the 1s counter for ammo
+	id.SetIsAmmoCount1s(ammocount1);
+}
+
+void ECS::SetIsHealthBar(unsigned entity, bool healthbar)
+{
+	//Gets reference to the component
+	auto& id = GetComponent<EntityIdentifier>(entity);
+	//sets healtbar entity
+	EntityIdentifier::Healthbar(entity);
+	//Sets wheter this entity is the healthbar
+	id.SetIsHealthbar(healthbar);
+}
+
+void ECS::SetIsManaBar(unsigned entity, bool manabar)
+{
+	//Gets reference to the component
+	auto& id = GetComponent<EntityIdentifier>(entity);
+	//sets manabar entity
+	EntityIdentifier::Manabar(entity);
+	//Sets wheter this entity is the manabar
+	id.SetIsHealthbar(manabar);
 }
