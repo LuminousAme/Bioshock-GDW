@@ -40,6 +40,9 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		ECS::GetComponent<VerticalScroll>(entity).SetCam(&ECS::GetComponent<Camera>(entity));
 		ECS::GetComponent<VerticalScroll>(entity).SetOffSet(0.0001f);
 
+		//Matches the camera to main player spawn
+		ECS::GetComponent<Camera>(entity).SetPosition(vec3(120.f, -15.f, ECS::GetComponent<Camera>(entity).GetPositionZ()));
+
 		//Sets up the Identifier
 		unsigned int bitHolder = EntityIdentifier::CameraBit() | EntityIdentifier::HoriScrollCameraBit() | EntityIdentifier::VertScrollCameraBit(); 
 		ECS::SetUpIdentifier(entity, bitHolder, "Main Camera"); 
@@ -82,7 +85,7 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		animController.SetActiveAnim(0); 
 
 		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 48, 48, true, &animController); 
-		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, 75.f));
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(120.f, -15.f, 75.f));
 
 		auto& tempSpr = ECS::GetComponent<Sprite>(entity); 
 		auto& tempPhysBod = ECS::GetComponent<PhysicsBody>(entity);
@@ -97,6 +100,10 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 
 		tempPhysBod = PhysicsBody(tempBody, float(tempSpr.GetWidth() * 0.4f), float(tempSpr.GetHeight() * 0.4f),
 			vec2(0.f, 0.f), false);
+
+		const char* UD[] = { "Player" };
+		tempPhysBod.GetBody()->SetUserData(UD);
+
 
 		//Sets up identifier 
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit() | EntityIdentifier::PhysicsBit();
@@ -367,25 +374,125 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		ECS::SetIsGunTrail(entity, true); 
 	}
 
-	//setup a background image entity, just to test movement 
+	//setup new entity, Lightning
 	{
-		//creates entity
+		//Our animation file 
+		auto animation = File::LoadJSON("ElectricShock.json");
+
+		//create new entity 
+		auto entity = ECS::CreateEntity();
+
+		//Add components
+		ECS::AttachComponent<Sprite>(entity);
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<AnimationController>(entity);
+		ECS::AttachComponent<PhysicsBody>(entity);
+
+		//Sets up components
+		std::string fileName = "Lightning.png";
+		auto& animController = ECS::GetComponent<AnimationController>(entity);
+
+		animController.InitUVs(fileName);
+
+		//Adds Shock animation
+		animController.AddAnimation(animation["Shock"]); //index 0
+
+		animController.SetActiveAnim(0);
+
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 15, 4, true, &animController);
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-10000.f, -1000.f, 99.f));
+
+		auto& tempSpr = ECS::GetComponent<Sprite>(entity);
+		auto& tempPhysBod = ECS::GetComponent<PhysicsBody>(entity);
+		auto& tempTrans = ECS::GetComponent<Transform>(entity);
+
+		b2Body* tempBody;
+		b2BodyDef tempDef;
+		tempDef.type = b2_dynamicBody;
+		tempDef.position.Set(float32(tempTrans.GetPositionX()), float32(tempTrans.GetPositionY()));
+
+		tempBody = m_physicsWorld->CreateBody(&tempDef);
+
+		tempPhysBod = PhysicsBody(tempBody, float(tempSpr.GetWidth()), float(tempSpr.GetHeight()),
+			vec2(0.f, 0.f), false);
+
+		const char* UD[] = { "Lightning" };
+		tempPhysBod.GetBody()->SetUserData(UD);
+
+		//Sets up identifier 
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "Lightning");
+		ECS::SetIsLightning(entity, true);
+	}
+
+	//setup a background image entity
+	{
+		auto animation = File::LoadJSON("Map.json");
+
+		//create new entity 
+		auto entity = ECS::CreateEntity();
+
+		//Add components
+		ECS::AttachComponent<Sprite>(entity);
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<AnimationController>(entity);
+
+		//Sets up components
+		std::string fileName = "map design.png";
+		auto& animController = ECS::GetComponent<AnimationController>(entity);
+
+		animController.InitUVs(fileName);
+
+		//Adds Level One animation
+		animController.AddAnimation(animation["LevelOne"]); //index 0
+		//Adds Level Two animation
+		animController.AddAnimation(animation["LevelTwo"]); //index 1
+		//Adds Level Three animation
+		animController.AddAnimation(animation["LevelThree"]); //index 2 
+
+		animController.SetActiveAnim(0);
+
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 600, 525, true, &animController);
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, 2.f));
+
+		//Sets up identifier 
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "Map");
+	}
+
+	//setup map collisions, water right of spawn
+	/*
+	{
+		//create the entity
 		auto entity = ECS::CreateEntity(); 
 
-		//Adds components
-		ECS::AttachComponent<Sprite>(entity); 
-		ECS::AttachComponent<Transform>(entity);
+		//Adds components 
+		ECS::AttachComponent<Transform>(entity); 
+		ECS::AttachComponent<PhysicsBody>(entity);
 
-		//Sets up components 
-		std::string fileName = "HelloWorld.png"; 
-		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 100, 50); 
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(220.f, 12.f, 2.01f));
 
-		ECS::GetComponent<Transform>(entity).SetPosition(0.f, 0.f, 1.f); 
+		auto& tempPhysBod = ECS::GetComponent<PhysicsBody>(entity);
+		auto& tempTrans = ECS::GetComponent<Transform>(entity);
 
-		//Sets up identitifer
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
-		ECS::SetUpIdentifier(entity, bitHolder, "Hello World Sign"); 
-	}
+		b2Body* tempBody;
+		b2BodyDef tempDef;
+		tempDef.type = b2_staticBody;
+		tempDef.position.Set(float32(tempTrans.GetPositionX()), float32(tempTrans.GetPositionY()));
+
+		tempBody = m_physicsWorld->CreateBody(&tempDef);
+
+		tempPhysBod = PhysicsBody(tempBody, 160.f, 496.f, vec2(0.f, 0.f), false);
+
+		const char* UD[] = { "Water" };
+		tempPhysBod.GetBody()->SetUserData(UD);
+
+		//Sets up identifier 
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "water 1");
+		ECS::SetIsLightning(entity, true);
+	} */
+	
 
 	//Makes the camera focus on the main player
 	//We do this at the very button to get the most accurate pointer to our transform
@@ -396,6 +503,9 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 void TestScene::Update() {
 	//hide the mouse (we only want the crosshair to display)
 	ShowCursor(false);
+
+	auto& playerTrans = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer());
+	printf("Player pos: %f, %f\n", playerTrans.GetPositionX(), playerTrans.GetPositionY());
 
 	auto& pResources = ECS::GetComponent<EnResources>(EntityIdentifier::MainPlayer()); 
 	//update the player resources HUD
@@ -538,10 +648,30 @@ void TestScene::Update() {
 	//SPECIAL ABILITIES
 
 	//if the player has inputed a lightning attack 
-	if (lightning) {
+	if (lightning && pResources.GetMana() > 0) {
 		//check if there's a controller connected
 		bool controllerConnected = false;
 		int controllerIndex = 0;
+
+		//reduce the player's mana 
+		pResources.SetMana(pResources.GetMana() - 1);
+
+		//grab references to the player and lightning'ss transforms
+		auto& pTrans = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer());
+		auto& lTrans = ECS::GetComponent<Transform>(EntityIdentifier::Lightning());
+
+		//grab a reference to the lightning's physicsbody
+		auto& lPhys = ECS::GetComponent<PhysicsBody>(EntityIdentifier::Lightning());
+
+		//set the rotation of the lightning to match the players
+		lTrans.SetRotationAngleZ(pTrans.GetRotationAngleZ());
+
+		//set the lignhtning's position equal to the player
+		lTrans.SetPosition(vec3(pTrans.GetPositionX() + directionFaced.x * 30, pTrans.GetPositionY() + directionFaced.y * 30, pTrans.GetPositionZ()));
+		lPhys.GetBody()->SetTransform(b2Vec2(float32(lTrans.GetPositionX()), float32(lTrans.GetPositionY())),lPhys.GetBody()->GetAngle());
+
+		lPhys.ApplyForce(vec3(INT_MAX * directionFaced.x, INT_MAX * directionFaced.y, 0));
+
 		for (int i = 0; i < 3; i++) {
 			if (XInputManager::ControllerConnected(i))
 			{
@@ -574,6 +704,12 @@ void TestScene::Update() {
 			//begin shooting lighning 
 			animController.SetActiveAnim(3);
 		}
+
+
+	}
+	else if (lightning && pResources.GetMana() <= 0)
+	{
+		lightning = false;
 	}
 
 	//if the lightning in progress flag is true, but the animation has ended
@@ -687,9 +823,13 @@ void TestScene::GamepadStroke(XInputController* con) {
 		//switch weapons
 		weaponSwitch = true;
 	}
-	//left bumper changes between special abilities 
-	if (con->IsButtonPressed(Buttons::LB)) {
-		//switch special abilites 
+	//X uses health packs 
+	if (con->IsButtonPressed(Buttons::DPAD_DOWN)) {
+		auto& pResources = ECS::GetComponent<EnResources>(EntityIdentifier::MainPlayer()); 
+		if (pResources.GetPacks() > 0) {
+			pResources.SetPacks(pResources.GetPacks() - 1); 
+			pResources.SetHP(12);
+		}
 	}
 }
 
@@ -724,18 +864,76 @@ void TestScene::GamepadStick(XInputController* con){
 		directiony = 0;
 	}
 
+	vec2 nDirFace = directionFaced;
+
 	//Right stick, rotation
 	if (sticks[1].x < -0.1f) {
 		//rotate left
+		float angle = -0.1f;
+
+		mat2 rot = mat2(vec2(cos(angle), -sin(angle)), vec2(sin(angle), cos(angle)));
+		directionFaced = rot * directionFaced;
+
+
+		//grab a reference to the main player's transform (so we can rotate the sprite) 
+		auto& tempTrans = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer());
+
+		//add the existing sprite rotation to the new angle
+		angle += tempTrans.GetRotationAngleZ();
+
+		//set the sprite's rotation equal to the new angle 
+		tempTrans.SetRotationAngleZ(angle);
 	}
 	else if (sticks[1].x > 0.1f) {
 		//rotate right 
+		float angle = 0.1f;
+
+		mat2 rot = mat2(vec2(cos(angle), -sin(angle)), vec2(sin(angle), cos(angle)));
+		directionFaced = rot * directionFaced;
+
+
+		//grab a reference to the main player's transform (so we can rotate the sprite) 
+		auto& tempTrans = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer());
+
+		//add the existing sprite rotation to the new angle
+		angle += tempTrans.GetRotationAngleZ();
+
+		//set the sprite's rotation equal to the new angle 
+		tempTrans.SetRotationAngleZ(angle);
 	}
 	else if (sticks[1].y < -0.1f) {
 		//rotate "up"
+		float angle = 0.1f;
+
+		mat2 rot = mat2(vec2(cos(angle), -sin(angle)), vec2(sin(angle), cos(angle)));
+		directionFaced = rot * directionFaced;
+
+
+		//grab a reference to the main player's transform (so we can rotate the sprite) 
+		auto& tempTrans = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer());
+
+		//add the existing sprite rotation to the new angle
+		angle += tempTrans.GetRotationAngleZ();
+
+		//set the sprite's rotation equal to the new angle 
+		tempTrans.SetRotationAngleZ(angle);
 	}
 	else if (sticks[1].y > 0.1f) {
 		//rotate "down" 
+		float angle = -0.1f;
+		
+		mat2 rot = mat2(vec2(cos(angle), -sin(angle)), vec2(sin(angle), cos(angle)));
+		directionFaced = rot * directionFaced;
+
+
+		//grab a reference to the main player's transform (so we can rotate the sprite) 
+		auto& tempTrans = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer());
+
+		//add the existing sprite rotation to the new angle
+		angle += tempTrans.GetRotationAngleZ();
+
+		//set the sprite's rotation equal to the new angle 
+		tempTrans.SetRotationAngleZ(angle);
 	}
 
 }
@@ -749,7 +947,7 @@ void TestScene::GamepadTrigger(XInputController* con) {
 		//shoot gun or swing wrench 
 		attack = true;
 	}
-	if (triggers.LT > 0.5f) {
+	if (triggers.LT > 0.5f && !lightning && !currentlyLightning) {
 		//fire off special ability 
 		lightning = true;
 	}
@@ -757,6 +955,23 @@ void TestScene::GamepadTrigger(XInputController* con) {
 
 void TestScene::KeyboardHold() {
 	//Keyboard button held
+	if (Input::GetKey(Key::Control))
+	{
+		auto& MainCamera = ECS::GetComponent<Camera>(EntityIdentifier::MainCamera());
+
+		if (Input::GetKey(Key::Z))
+		{
+			if (MainCamera.GetOrthoSize().x != -13 && MainCamera.GetOrthoSize().y != 13 && MainCamera.GetOrthoSize().z != -13)
+				MainCamera.Zoom(1);
+			//printf("Orthogonial Size: %f %c %f %c %f \n",MainCamera.GetOrthoSize().x, ',', MainCamera.GetOrthoSize().y, ',', MainCamera.GetOrthoSize().z);
+		}
+
+		if (Input::GetKey(Key::X))
+		{
+			auto& MainCamera = ECS::GetComponent<Camera>(EntityIdentifier::MainCamera());
+			MainCamera.Zoom(-1);
+		}
+	}
 
 	//move up 
 	if (Input::GetKey(Key::W) || Input::GetKey(Key::UpArrow))
@@ -801,39 +1016,64 @@ void TestScene::KeyboardHold() {
 }
 
 void TestScene::KeyboardDown() {
+	auto& pResources = ECS::GetComponent<EnResources>(EntityIdentifier::MainPlayer());
+	if (Input::GetKeyDown(Key::One)) {
+		if (pResources.GetPacks() > 0) {
+			pResources.SetPacks(pResources.GetPacks() - 1);
+			pResources.SetHP(12);
+		}
+	}
+
+	if (Input::GetKeyDown(Key::O)) {
+		pResources.SetHP(pResources.GetHP() - 1);
+		if (pResources.GetHP() == 0) {
+			close = true;
+		}
+	}
 }
 
 void TestScene::MouseMotion(SDL_MouseMotionEvent evnt) {
-	//grab a reference to the main camera (so rotation can still work even when zoomed in or out 
-	auto& tempCam = ECS::GetComponent<Camera>(EntityIdentifier::MainCamera());
-	//grab a reference to the main player's transform (so we can rotate the sprite) 
-	auto& tempTrans = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()); 
+	bool controller = false; 
+	for (int i = 0; i < 3; i++) {
+		if (XInputManager::ControllerConnected(i))
+		{
+			controller = true;
+		}
+	}
+	if(!controller)
+	{
+		//grab a reference to the main camera (so rotation can still work even when zoomed in or out 
+		auto& tempCam = ECS::GetComponent<Camera>(EntityIdentifier::MainCamera());
+		//grab a reference to the main player's transform (so we can rotate the sprite) 
+		auto& tempTrans = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer());
+
+		//floats for the width and height of the screen, used to convert the mouse so we can rotate to follow the mouse 
+		float width = tempCam.GetAspect() * (tempCam.GetOrthoSize().y - tempCam.GetOrthoSize().x);
+		float height = (tempCam.GetOrthoSize().w - tempCam.GetOrthoSize().z);
+
+		//grab the mouse pixel coordinates 
+		convertedMouse = vec2(evnt.x, evnt.y); //not yet converted 
+		//Convert them to world coordinates 
+		mouseUtils::convertToGL(BackEnd::GetWindowWidth(), BackEnd::GetWindowHeight(), width, height, convertedMouse.x, convertedMouse.y); //now converted
+
+		//rotate the mouse's global coordinates so that we can make the player's rotation follow the mouse 
+		mat2 rot = mat2(vec2(cos(-1.5f), -sin(-1.5f)), vec2(sin(-1.5f), cos(-1.5f)));
+		convertedMouse = rot * convertedMouse;
+
+		//find the angle between the converted and rotated mouse and the direction the player is facing 
+		float angle = convertedMouse.Dot(directionFaced) / (convertedMouse.GetMagnitude() * directionFaced.GetMagnitude()); //in radians
+
+		//rotate the vector representing the direction the player is facing
+		rot = mat2(vec2(cos(angle), -sin(angle)), vec2(sin(angle), cos(angle)));
+		directionFaced = rot * directionFaced;
+
+		//add the existing sprite rotation to the new angle
+		angle += tempTrans.GetRotationAngleZ();
+
+		//set the sprite's rotation equal to the new angle 
+		tempTrans.SetRotationAngleZ(angle);
+	}
 	
-	//floats for the width and height of the screen, used to convert the mouse so we can rotate to follow the mouse 
-	float width = tempCam.GetAspect() * (tempCam.GetOrthoSize().y - tempCam.GetOrthoSize().x); 
-	float height = (tempCam.GetOrthoSize().w - tempCam.GetOrthoSize().z);
-
-	//grab the mouse pixel coordinates 
-	convertedMouse = vec2(evnt.x, evnt.y); //not yet converted 
-	//Convert them to world coordinates 
-	mouseUtils::convertToGL(BackEnd::GetWindowWidth(), BackEnd::GetWindowHeight(), width, height, convertedMouse.x, convertedMouse.y); //now converted
-
-	//rotate the mouse's global coordinates so that we can make the player's rotation follow the mouse 
-	mat2 rot = mat2(vec2(cos(-1.5f), -sin(-1.5f)), vec2(sin(-1.5f), cos(-1.5f)));
-	convertedMouse = rot * convertedMouse; 
-
-	//find the angle between the converted and rotated mouse and the direction the player is facing 
-	float angle = convertedMouse.Dot(directionFaced) / (convertedMouse.GetMagnitude() * directionFaced.GetMagnitude()); //in radians
-
-	//rotate the vector representing the direction the player is facing
-	rot = mat2(vec2(cos(angle), -sin(angle)), vec2(sin(angle), cos(angle)));
-	directionFaced = rot * directionFaced;
-
-	//add the existing sprite rotation to the new angle
-	angle += tempTrans.GetRotationAngleZ(); 
-
-	//set the sprite's rotation equal to the new angle 
-	tempTrans.SetRotationAngleZ(angle); 
 }
 
 void TestScene::MouseClick(SDL_MouseButtonEvent evnt) {

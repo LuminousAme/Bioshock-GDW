@@ -57,6 +57,7 @@ public:
 	static void SetIsAmmoCount1s(unsigned entity, bool ammocount1);
 	static void SetIsHealthBar(unsigned entity, bool healthbar);
 	static void SetIsManaBar(unsigned entity, bool manabar);
+	static void SetIsLightning(unsigned entity, bool lightning);
 
 private:
 	static entt::registry* m_reg;

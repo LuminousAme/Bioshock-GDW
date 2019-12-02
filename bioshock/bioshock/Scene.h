@@ -41,6 +41,7 @@ public:
 	virtual void MouseClick(SDL_MouseButtonEvent evnt) { };
 	virtual void MouseWheel(SDL_MouseWheelEvent evnt) { };
 
+	virtual bool GetClose() { return false; };
 	//Get the scene registry
 	entt::registry* GetScene() const;
 	//Set the scene registry
@@ -216,6 +217,11 @@ inline void from_json(const nlohmann::json& j, Scene& scene)
 		{
 			//Sets the manabar
 			EntityIdentifier::Manabar(entity);
+		}
+		if (reg.get<EntityIdentifier>(entity).GetIsLightning())
+		{
+			//Sets lightning
+			EntityIdentifier::Lightning(entity);
 		}
 
 		unsigned int identity = reg.get<EntityIdentifier>(entity).GetIdentifier();

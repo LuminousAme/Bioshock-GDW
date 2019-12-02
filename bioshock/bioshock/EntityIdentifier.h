@@ -35,6 +35,9 @@ public:
 	bool GetIsHealthBar();
 	static unsigned int ManaBar();
 	bool GetIsManaBar();
+	//Get lightning
+	static unsigned int Lightning();
+	bool GetIsLightning();
 
 	//Get entity number
 	unsigned int GetEntity() const;
@@ -82,6 +85,9 @@ public:
 	void SetIsHealthbar(bool main);
 	static void Manabar(unsigned int entity);
 	void SetIsManabar(bool main);
+	//Set lightning
+	static void Lightning(unsigned int entity); 
+	void SetIsLightning(bool main);
 
 	void SetIsEntity(bool main);
 	//Set entity number
@@ -119,6 +125,9 @@ private:
 	bool m_isHealthbar; 
 	static unsigned int m_manabar;
 	bool m_isManabar;
+	//lightning
+	static unsigned int m_lightning;
+	bool m_isLightning; 
 
 	//Stores the entity number
 	unsigned int m_entity;

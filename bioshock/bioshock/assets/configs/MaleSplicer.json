@@ -1,0 +1,29 @@
+{
+  "Attack": {
+    "Frame0": [ 1.0, 85.0, 77.0, 44.0 ],
+    "Frame1": [ 1.0, 42.0, 77.0, 1.0 ],
+    "Frame2": [ 1.0, 85.0, 77.0, 44.0 ],
+    "NumFrames": 3,
+    "Repeating": false,
+    "SecsPerFrame": 0.25999999046325684
+  },
+  "Base": {
+    "Frame0": [ 1.0, 85.0, 77.0, 44.0 ],
+    "NumFrames": 1,
+    "Repeating": true,
+    "SecsPerFrame": 1.0
+  },
+  "Death": {
+    "Frame0": [ 1.0, 128.0, 77.0, 87.0 ],
+    "NumFrames": 1,
+    "Repeating": true,
+    "SecsPerFrame": 1.0
+  },
+  "Electric": {
+    "Frame0": [ 79.0, 42.0, 155.0, 1.0 ],
+    "Frame1": [ 79.0, 85.0, 155.0, 44.0 ],
+    "NumFrames": 2,
+    "Repeating": false,
+    "SecsPerFrame": 1
+  }
+}

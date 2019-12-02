@@ -131,5 +131,15 @@ void ECS::SetIsManaBar(unsigned entity, bool manabar)
 	//sets manabar entity
 	EntityIdentifier::Manabar(entity);
 	//Sets wheter this entity is the manabar
-	id.SetIsHealthbar(manabar);
+	id.SetIsManabar(manabar);
+}
+
+void ECS::SetIsLightning(unsigned entity, bool lightning)
+{
+	//Gets reference to the component
+	auto& id = GetComponent<EntityIdentifier>(entity);
+	//sets lightning etity
+	EntityIdentifier::Lightning(entity);
+	//Sets wheter this entity is the manabar
+	id.SetIsLightning(lightning);
 }

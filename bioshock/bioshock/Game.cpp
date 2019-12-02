@@ -49,6 +49,7 @@ void Game::InitGame()
 	m_register = m_activeScene->GetScene(); 
 
 	PhysicsSystem::Init(); 
+	
 }
 
 bool Game::Run()
@@ -82,11 +83,8 @@ bool Game::Run()
 			AcceptInput();
 		}
 
-		//swaps to the approriate scene, might need to change later
-		if (m_currentScene != m_sceneRunning) {
-			m_sceneRunning = m_currentScene; 
-			m_activeScene = m_scenes[m_currentScene]; 
-			m_register = m_activeScene->GetScene();
+		if (m_activeScene->GetClose()) {
+			m_window->Close();
 		}
 	}
 

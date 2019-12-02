@@ -97,6 +97,10 @@ PhysicsBody::PhysicsBody(b2Body * body, float width, float height, vec2 centerOf
 	InitBody(); 
 }
 
+PhysicsBody::~PhysicsBody()
+{
+}
+
 void PhysicsBody::Update(Transform * trans)
 {
 	//Stores the position

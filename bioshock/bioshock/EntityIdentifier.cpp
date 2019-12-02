@@ -9,6 +9,7 @@ unsigned int EntityIdentifier::m_ammocount10s = 0;
 unsigned int EntityIdentifier::m_ammocount1s = 0; 
 unsigned int EntityIdentifier::m_healthbar = 0;
 unsigned int EntityIdentifier::m_manabar = 0;
+unsigned int EntityIdentifier::m_lightning = 0;
 
 //start on 0x1
 unsigned int EntityIdentifier::m_cameraBit			= 0x1;
@@ -127,6 +128,16 @@ unsigned int EntityIdentifier::ManaBar()
 bool EntityIdentifier::GetIsManaBar()
 {
 	return m_isManabar;
+}
+
+unsigned int EntityIdentifier::Lightning()
+{
+	return m_lightning;
+}
+
+bool EntityIdentifier::GetIsLightning()
+{
+	return m_isLightning;
 }
 
 unsigned int EntityIdentifier::GetEntity() const
@@ -301,6 +312,16 @@ void EntityIdentifier::Manabar(unsigned int entity)
 void EntityIdentifier::SetIsManabar(bool main)
 {
 	m_isManabar = main;
+}
+
+void EntityIdentifier::Lightning(unsigned int entity)
+{
+	m_lightning = entity; 
+}
+
+void EntityIdentifier::SetIsLightning(bool main)
+{
+	m_isLightning = main;
 }
 
 void EntityIdentifier::SetIsEntity(bool main)

@@ -31,6 +31,10 @@ public:
 	//Move the main player
 	void mainPlayerMove(); 
 
+	bool GetClose() override {
+		return close; 
+	}
+
 private:
 	//main player movement direction
 	int directionx = 0;
@@ -57,4 +61,7 @@ private:
 	//Stuff for using abilities 
 	bool lightning = false;
 	bool currentlyLightning = false;
+
+	//game over
+	bool close = false; 
 };

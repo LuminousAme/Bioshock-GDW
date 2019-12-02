@@ -3,6 +3,7 @@
 
 #include "BackEnd.h"
 #include "TestScene.h"
+#include "ContactListener.h"
 
 //Our main class for running our game
 class Game

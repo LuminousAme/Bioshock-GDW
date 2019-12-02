@@ -34,11 +34,13 @@ class PhysicsBody
 {
 public:
 	//default constructor
-	PhysicsBody() {}; 
+	PhysicsBody() {};
 	//Constructs a circle collider 
 	PhysicsBody(b2Body* body, float radius, vec2 centerOffset, bool isDynamic); 
 	//Constructs a box collider 
 	PhysicsBody(b2Body* body, float width, float height, vec2 centerOffSet, bool isDynamic); 
+	//Destroys the physicsBody
+	~PhysicsBody();
 
 	//Update physics stuffs
 	void Update(Transform* trans); 
