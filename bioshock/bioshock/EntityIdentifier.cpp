@@ -2,6 +2,8 @@
 
 unsigned int EntityIdentifier::m_mainCamera = 0;
 unsigned int EntityIdentifier::m_mainPlayer = 0;
+unsigned int EntityIdentifier::m_crosshair = 0;
+unsigned int EntityIdentifier::m_guntrail = 0;
 
 //start on 0x1
 unsigned int EntityIdentifier::m_cameraBit			= 0x1;
@@ -48,6 +50,26 @@ bool EntityIdentifier::GetIsMainCamera() const
 {
 	//Gets if this component IS attached to the main camera
 	return m_isMainCamera;
+}
+
+unsigned int EntityIdentifier::Crosshair()
+{
+	return m_crosshair;
+}
+
+bool EntityIdentifier::GetIsCrosshair() const
+{
+	return m_isCrosshair;
+}
+
+unsigned int EntityIdentifier::GunTrail()
+{
+	return m_guntrail;
+}
+
+bool EntityIdentifier::GetIsGunTrail() const
+{
+	return m_isGuntrail;
 }
 
 unsigned int EntityIdentifier::GetEntity() const
@@ -142,6 +164,31 @@ void EntityIdentifier::SetIsMainCamera(bool main)
 {
 	//Sets whether or not the entity that has this component, is the main camera
 	m_isMainCamera = main;
+}
+
+void EntityIdentifier::Crosshair(unsigned int entity)
+{
+	m_crosshair = entity; 
+}
+
+void EntityIdentifier::SetIsCrosshair(bool main)
+{
+	m_isCrosshair = true;
+}
+
+void EntityIdentifier::GunTrail(unsigned int entity)
+{
+	m_guntrail = entity; 
+}
+
+void EntityIdentifier::SetIsGunTrail(bool main)
+{
+	m_isGuntrail = main; 
+}
+
+void EntityIdentifier::SetIsEntity(bool main)
+{
+	m_isCrosshair = true;
 }
 
 void EntityIdentifier::SetEntity(unsigned int entity)

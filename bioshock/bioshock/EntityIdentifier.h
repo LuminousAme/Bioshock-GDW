@@ -16,6 +16,13 @@ public:
 	//Gets main camera entity
 	static unsigned int MainCamera();
 	bool GetIsMainCamera() const;
+	//Gets crosshair 
+	static unsigned int Crosshair(); 
+	bool GetIsCrosshair() const; 
+	//Gets gun trail 
+	static unsigned int GunTrail(); 
+	bool GetIsGunTrail() const; 
+
 	//Get entity number
 	unsigned int GetEntity() const;
 	//Get identifier bitfield
@@ -41,6 +48,14 @@ public:
 	//Sets main camera entity
 	static void MainCamera(unsigned int entity);
 	void SetIsMainCamera(bool main);
+	//Sets crosshair entity
+	static void Crosshair(unsigned int entity); 
+	void SetIsCrosshair(bool main);
+	//Sets guntrail entity 
+	static void GunTrail(unsigned int entity); 
+	void SetIsGunTrail(bool main); 
+
+	void SetIsEntity(bool main);
 	//Set entity number
 	void SetEntity(unsigned int entity);
 	//Set identifier bitfield
@@ -57,7 +72,12 @@ private:
 	//Main camera
 	static unsigned int m_mainCamera;
 	bool m_isMainCamera = false;
-
+	//Crosshair 
+	static unsigned int m_crosshair; 
+	bool m_isCrosshair; 
+	//Gun trail 
+	static unsigned int m_guntrail; 
+	bool m_isGuntrail; 
 
 	//Stores the entity number
 	unsigned int m_entity;

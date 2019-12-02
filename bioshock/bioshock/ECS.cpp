@@ -63,3 +63,23 @@ void ECS::SetIsMainPlayer(unsigned entity, bool mainPlayer)
 	//Sets whether this entity is the main player
 	id.SetIsMainPlayer(mainPlayer);
 }
+
+void ECS::SetIsCrosshair(unsigned entity, bool crosshair)
+{
+	//Gets reference to the component
+	auto& id = GetComponent<EntityIdentifier>(entity);
+	//Sets crosshair entity
+	EntityIdentifier::Crosshair(entity);
+	//Sets whether this entity is the crosshair
+	id.SetIsCrosshair(crosshair);
+}
+
+void ECS::SetIsGunTrail(unsigned entity, bool guntrail)
+{
+	//Gets reference to the component
+	auto& id = GetComponent<EntityIdentifier>(entity);
+	//Sets crosshair entity
+	EntityIdentifier::GunTrail(entity);
+	//Sets whether this entity is the crosshair
+	id.SetIsGunTrail(guntrail);
+}

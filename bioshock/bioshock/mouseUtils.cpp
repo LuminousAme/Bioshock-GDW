@@ -13,9 +13,9 @@ void mouseUtils::convertToGL(int sWidth, int sHeight, int GLWidth, int GLHeight,
 	tempx -= 0.5f; 
 	tempy -= 0.5f; 
 
-	//multiply by two to get [-1.0, 1.0] 
+	//multiply by two to get [-1.0, 1.0] (-2 for tempy as it is flipped)
 	tempx *= 2.f; 
-	tempy *= 2.f; 
+	tempy *= -2.f; 
 
 	//now GLWidth and GLHeight are factored in, however because the origin is centered we need to divide by two and save in mouseX and mouseY(+/- already held in temp)
 	mouseX = tempx * (GLWidth / 2); 

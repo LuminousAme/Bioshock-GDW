@@ -31,12 +31,15 @@ public:
 	//Move the main player
 	void mainPlayerMove(); 
 private:
-	//main player velocity 
-	vec2 m_velocity = vec2(0.f, 0.f);
-
-	//main player direction
+	//main player movement direction
 	int directionx = 0;
 	int directiony = 0;
+
+	//main player facing direction
+	vec2 directionFaced = vec2(1.f, 0.f); 
+
+	//stores mouse global coordinates 
+	vec2 convertedMouse = vec2(0.f, 0.f); 
 
 	//stuff for switching weapons 
 	bool weaponSwitch = false;
@@ -47,6 +50,8 @@ private:
 	//stuff for making attacks
 	bool attack = false;
 	bool currentlyAttacking = false;
+	bool fireGun = false; 
+	float timeSinceShotFired = 2.f; 
 
 	//Stuff for using abilities 
 	bool lightning = false;

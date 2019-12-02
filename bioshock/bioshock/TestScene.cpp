@@ -81,7 +81,7 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		animController.SetActiveAnim(0); 
 
 		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 48, 48, true, &animController); 
-		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, 99.f));
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, 75.f));
 
 		auto& tempSpr = ECS::GetComponent<Sprite>(entity); 
 		auto& tempPhysBod = ECS::GetComponent<PhysicsBody>(entity);
@@ -103,6 +103,51 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		ECS::SetIsMainPlayer(entity, true); 
 	}
 
+	//Setup UI (Crosshair) entity
+	{
+		//Creates entity
+		auto entity = ECS::CreateEntity(); 
+
+		//Adds components 
+		ECS::AttachComponent<Sprite>(entity); 
+		ECS::AttachComponent<Transform>(entity); 
+
+		//Sets up components 
+		std::string fileName = "crosshair.png";
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 2, 2); 
+
+		ECS::GetComponent<Transform>(entity).SetPosition(50, 0, 99.f);
+
+
+		//Sets up identitifer
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "Crosshair");
+		ECS::SetIsCrosshair(entity, true); 
+	}
+
+	
+
+	//Setup gun trail entity 
+	{
+		//Creates entity 
+		auto entity = ECS::CreateEntity(); 
+
+		//Adds components 
+		ECS::AttachComponent<Sprite>(entity); 
+		ECS::AttachComponent<Transform>(entity); 
+
+		//Sets up components 
+		std::string fileName = "gun trail.png";
+		ECS::GetComponent <Sprite>(entity).LoadSprite(fileName, 200, 48); 
+
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-10000.f, -10000.f, 52.f)); 
+
+		//Sets up identifier
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit(); 
+		ECS::SetUpIdentifier(entity, bitHolder, "Gun trail");
+		ECS::SetIsGunTrail(entity, true); 
+	}
+
 	//setup a background image entity, just to test movement 
 	{
 		//creates entity
@@ -116,6 +161,8 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 		std::string fileName = "HelloWorld.png"; 
 		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 100, 50); 
 
+		ECS::GetComponent<Transform>(entity).SetPosition(0.f, 0.f, 1.f); 
+
 		//Sets up identitifer
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Hello World Sign"); 
@@ -128,6 +175,21 @@ void TestScene::InitScene(float windowWidth, float windowHeight)
 }
 
 void TestScene::Update() {
+	//hide the mouse (we only want the crosshair to display)
+	ShowCursor(false);
+
+	//if the time since the last gunshot was fired is less than 0.15f, add deltaTime 
+	if (timeSinceShotFired < 0.02f)
+	{
+		timeSinceShotFired += Timer::deltaTime; 
+	}
+	else
+	{
+		auto& gTrans = ECS::GetComponent<Transform>(EntityIdentifier::GunTrail());
+		gTrans.SetPosition(vec3(-10000.f, -10000.f, gTrans.GetPositionZ())); 
+		gTrans.SetRotationAngleZ(0); 
+	}
+
 	//display the effects 
 	VignetteEffect* tempVig = (VignetteEffect*)EffectManager::GetEffect(EffectManager::GetVignetteHandle());
 	tempVig->SetInnerRadius(0.01f);
@@ -207,6 +269,7 @@ void TestScene::Update() {
 		else if (animController.GetActiveAnim() == 1) {
 			//begin shooting gun 
 			animController.SetActiveAnim(5);
+			fireGun = true;
 		}
 	}
 
@@ -323,6 +386,57 @@ void TestScene::Update() {
 		else {
 			animController.SetActiveAnim(1);
 		}
+	}
+
+	//grab a reference to the crosshair's transform 
+	auto& pTrans = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()); 
+	auto& cTrans = ECS::GetComponent<Transform>(EntityIdentifier::Crosshair()); 
+
+	//create a vector representing the crosshair (and the direction in which the gun should fire)
+	vec2 tempVec = convertedMouse - directionFaced; 
+	//get it's lenght
+	float lenght = tempVec.GetMagnitude(); 
+
+	//create a vector to adjust for the gun not being centered in jack's sprite (not perfect but helps quite a bit)
+	vec2 diradjust = vec2(1.f, -0.15f); 
+
+	//setup a rotation matrix with Jack's rotation
+	mat2 rot = mat2(vec2(cos(pTrans.GetRotationAngleZ()), -sin(pTrans.GetRotationAngleZ())), vec2(sin(pTrans.GetRotationAngleZ()), cos(pTrans.GetRotationAngleZ())));
+	//rotate the adjustment vector
+	diradjust = rot * diradjust;
+
+	//set the temp vector to be equal to the direction the player the player is faced, modified by the adjustment
+	tempVec = (directionFaced + diradjust);
+
+	//extend it back out to it's lenght 
+	tempVec = tempVec * lenght; 
+
+	//adjust it to the player's position (so when the player moves, the crosshair moves with them)
+	tempVec = tempVec + vec2(pTrans.GetPositionX(), pTrans.GetPositionY()); 
+	//set the crosshair's position
+	cTrans.SetPosition(tempVec.x, tempVec.y, cTrans.GetPositionZ()); 
+
+	//if the player has fired the gun
+	if (fireGun) {
+		//stop firing the gun
+		fireGun = false; 
+		//Grab a reference to the gun's transform
+		auto& gTrans = ECS::GetComponent<Transform>(EntityIdentifier::GunTrail());
+
+		//Set the gun trail's rotation to match that of the player
+		gTrans.SetRotationAngleZ(pTrans.GetRotationAngleZ()); 
+
+		//create a temporary vector to move the sprite so it fires out of the gun
+		vec2 temp2vec = vec2(115, 0); 
+
+		//rotate said vector by the player's rotation angle
+		temp2vec = rot * temp2vec; 
+		
+		//reset the position of the gun trail
+		gTrans.SetPosition(vec3(pTrans.GetPositionX() + temp2vec.x, pTrans.GetPositionY() + temp2vec.y, gTrans.GetPositionZ()));
+
+		//reset the timer between shots
+		timeSinceShotFired = 0.f; 
 	}
 }
 
@@ -462,18 +576,36 @@ void TestScene::KeyboardDown() {
 }
 
 void TestScene::MouseMotion(SDL_MouseMotionEvent evnt) {
-	vec3 playerPos = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()).GetPosition(); 
+	//grab a reference to the main camera (so rotation can still work even when zoomed in or out 
+	auto& tempCam = ECS::GetComponent<Camera>(EntityIdentifier::MainCamera());
+	//grab a reference to the main player's transform (so we can rotate the sprite) 
+	auto& tempTrans = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()); 
+	
+	//floats for the width and height of the screen, used to convert the mouse so we can rotate to follow the mouse 
+	float width = tempCam.GetAspect() * (tempCam.GetOrthoSize().y - tempCam.GetOrthoSize().x); 
+	float height = (tempCam.GetOrthoSize().w - tempCam.GetOrthoSize().z);
 
-	vec2 convertedMouse = vec2(evnt.x, evnt.y); //not yet converted 
-	mouseUtils::convertToGL(BackEnd::GetWindowWidth(), BackEnd::GetWindowHeight(), 356, 200, convertedMouse.x, convertedMouse.y); //now converted
+	//grab the mouse pixel coordinates 
+	convertedMouse = vec2(evnt.x, evnt.y); //not yet converted 
+	//Convert them to world coordinates 
+	mouseUtils::convertToGL(BackEnd::GetWindowWidth(), BackEnd::GetWindowHeight(), width, height, convertedMouse.x, convertedMouse.y); //now converted
 
-	convertedMouse = convertedMouse + vec2(playerPos.x, playerPos.y); //adjust it by the distance the player is from the origin 
+	//rotate the mouse's global coordinates so that we can make the player's rotation follow the mouse 
+	mat2 rot = mat2(vec2(cos(-1.5f), -sin(-1.5f)), vec2(sin(-1.5f), cos(-1.5f)));
+	convertedMouse = rot * convertedMouse; 
 
-	float dx = playerPos.x - convertedMouse.x; 
-	float dy = playerPos.y - convertedMouse.y; 
+	//find the angle between the converted and rotated mouse and the direction the player is facing 
+	float angle = convertedMouse.Dot(directionFaced) / (convertedMouse.GetMagnitude() * directionFaced.GetMagnitude()); //in radians
 
-	float playerFaceAng = (atan2(dy, dx)) * 180.f / PI; 
-	ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()).SetRotationAngleZ(-1.f * Transform::ToRadians(playerFaceAng) - Transform::ToRadians(180.f));
+	//rotate the vector representing the direction the player is facing
+	rot = mat2(vec2(cos(angle), -sin(angle)), vec2(sin(angle), cos(angle)));
+	directionFaced = rot * directionFaced;
+
+	//add the existing sprite rotation to the new angle
+	angle += tempTrans.GetRotationAngleZ(); 
+
+	//set the sprite's rotation equal to the new angle 
+	tempTrans.SetRotationAngleZ(angle); 
 }
 
 void TestScene::MouseClick(SDL_MouseButtonEvent evnt) {
@@ -498,49 +630,42 @@ void TestScene::MouseWheel(SDL_MouseWheelEvent evnt) {
 
 void TestScene::mainPlayerMove() {
 	auto& tempPhysBod = ECS::GetComponent<PhysicsBody>(EntityIdentifier::MainPlayer()); 
+	b2Body* body = tempPhysBod.GetBody(); 
 
 	//Left stick, movement 
-	if (directionx == 1) {
-		tempPhysBod.ApplyForce(vec3(-8000, 0, 0));
+	if (directionx == 1 && body->GetLinearVelocity().x > float32(-40.f)) {
+		tempPhysBod.ApplyForce(vec3(-8000.f, 0.f, 0.f));
 	}
-	else if (directionx == 2) {
-		tempPhysBod.ApplyForce(vec3(8000, 0, 0));
+	else if (directionx == 2 && body->GetLinearVelocity().x < float32(40.f)) {
+		tempPhysBod.ApplyForce(vec3(8000.f, 0.f, 0.f));
 	}
 	//stop moving left/right
 	else {
-		tempPhysBod.ApplyForce(vec3(0.f, tempPhysBod.GetForce().y, 0.f)); 
-		tempPhysBod.SetAcceleration(vec3(0.f, tempPhysBod.GetAcceleration().y, 0.f)); 
-		if (tempPhysBod.GetVelocity().x > 0.f && tempPhysBod.GetVelocity().x >= 0.8f) {
-			tempPhysBod.SetVelocity(vec3(tempPhysBod.GetVelocity().x - 0.8f, tempPhysBod.GetVelocity().y, 0.f)); 
+		if (body->GetLinearVelocity().x > float32(0.f))
+		{
+			tempPhysBod.ApplyForce(vec3(-8000.f, 0.f, 0.f));
 		}
-		else if (tempPhysBod.GetVelocity().x < 0.f && tempPhysBod.GetVelocity().x <= -0.8f) {
-			tempPhysBod.SetVelocity(vec3(tempPhysBod.GetVelocity().x + 0.8f, tempPhysBod.GetVelocity().y, 0.f));
-		}
-		else {
-			tempPhysBod.SetVelocity(vec3(0.f, tempPhysBod.GetVelocity().y, 0.f));
+		else if (body->GetLinearVelocity().x < float32(0.f))
+		{
+			tempPhysBod.ApplyForce(vec3(8000.f, 0.f, 0.f));
 		}
 	}
 
-	if (directiony == 1) {
-		tempPhysBod.ApplyForce(vec3(0, -8000, 0));
+	if (directiony == 1 && body->GetLinearVelocity().y > float32(-40.f)) {
+		tempPhysBod.ApplyForce(vec3(0.f, -8000.f, 0.f));
 	}
-	else if (directiony == 2) {
-		tempPhysBod.ApplyForce(vec3(0, 8000, 0));
+	else if (directiony == 2 && body->GetLinearVelocity().y < float32(40.f)) {
+		tempPhysBod.ApplyForce(vec3(0.f, 8000.f, 0.f));
 	}
 	//stop moving up/down
 	else {
-		
-		tempPhysBod.ApplyForce(vec3(tempPhysBod.GetForce().x, 0.f, 0.f));
-		tempPhysBod.SetAcceleration(vec3(tempPhysBod.GetAcceleration().x, 0.f, 0.f));
-		if (tempPhysBod.GetVelocity().y > 0.f && tempPhysBod.GetVelocity().y >= 0.8f) {
-			tempPhysBod.SetVelocity(vec3(tempPhysBod.GetVelocity().x, tempPhysBod.GetVelocity().y - 0.8f, 0.f));
+		if (body->GetLinearVelocity().y > float32(0.f))
+		{
+			tempPhysBod.ApplyForce(vec3(0.f, -8000.f, 0.f));
 		}
-		else if (tempPhysBod.GetVelocity().x < 0.f && tempPhysBod.GetVelocity().x <= -0.8f) {
-			tempPhysBod.SetVelocity(vec3(tempPhysBod.GetVelocity().x, tempPhysBod.GetVelocity().y + 0.8f, 0.f));
-		}
-		else {
-			tempPhysBod.SetVelocity(vec3(tempPhysBod.GetVelocity().x, 0.f, 0.f));
-			
+		else if (body->GetLinearVelocity().y < float32(0.f))
+		{
+			tempPhysBod.ApplyForce(vec3(0.f, 8000.f, 0.f));
 		}
 	}
 }

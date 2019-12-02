@@ -48,6 +48,8 @@ public:
 	//Side stuff for entity identifier
 	static void SetIsMainCamera(unsigned entity, bool mainCamera);
 	static void SetIsMainPlayer(unsigned entity, bool mainPlayer);
+	static void SetIsCrosshair(unsigned entity, bool crosshair);
+	static void SetIsGunTrail(unsigned entity, bool guntrail); 
 
 private:
 	static entt::registry* m_reg;
